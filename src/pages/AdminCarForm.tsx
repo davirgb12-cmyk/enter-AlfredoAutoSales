@@ -9,7 +9,8 @@ import {
   FUEL_OPTIONS,
   TRANSMISSION_OPTIONS,
   COLOR_OPTIONS,
-  STATES,
+  APP_STATE,
+  APP_STATE_LABEL,
   formatCurrency,
   loadSellerProfile,
   saveSellerProfile,
@@ -139,6 +140,7 @@ export default function AdminCarForm() {
         seller_name: form.seller_name.trim(),
         seller_phone: form.seller_phone.trim(),
         seller_city: form.seller_city.trim(),
+        seller_state: APP_STATE,
         user_id: user?.id ?? null,
       };
 
@@ -157,7 +159,7 @@ export default function AdminCarForm() {
         seller_name: form.seller_name,
         seller_phone: form.seller_phone,
         seller_city: form.seller_city,
-        seller_state: form.seller_state,
+        seller_state: APP_STATE,
       });
 
       queryClient.invalidateQueries({ queryKey: ['cars-admin'] });
@@ -339,12 +341,10 @@ export default function AdminCarForm() {
                 />
               </Field>
               <Field label="Estado">
-                <Select value={form.seller_state} onValueChange={(v) => setField('seller_state', v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {STATES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center h-9 px-3 rounded-md border border-border bg-muted text-sm text-muted-foreground gap-1.5">
+                  <span className="font-semibold text-foreground">{APP_STATE}</span>
+                  <span>– {APP_STATE_LABEL}</span>
+                </div>
               </Field>
             </div>
           </div>

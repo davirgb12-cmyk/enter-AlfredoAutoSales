@@ -22,7 +22,7 @@ export default function Navbar() {
           </div>
           <div>
             <div className="font-bold text-lg leading-tight">{APP_NAME}</div>
-            <div className="text-xs text-primary-foreground/60 leading-none">Compre e venda carros</div>
+            <div className="text-xs text-primary-foreground/60 leading-none">Carros em Goiás</div>
           </div>
         </Link>
 

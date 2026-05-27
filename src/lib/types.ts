@@ -37,7 +37,9 @@ export const STATES = [
 ];
 
 export const APP_NAME = 'GiroCar';
-export const APP_TAGLINE = 'Compre e venda carros em todo o Brasil';
+export const APP_TAGLINE = 'Compre e venda carros em Goiás';
+export const APP_STATE = 'GO';
+export const APP_STATE_LABEL = 'Goiás';
 
 export function getWhatsAppNumber(phone: string): string {
   const digits = phone.replace(/\D/g, '');

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Car, APP_NAME, APP_TAGLINE, formatCurrency } from '@/lib/types';
+import { Car, APP_NAME, APP_TAGLINE, APP_STATE, APP_STATE_LABEL, formatCurrency } from '@/lib/types';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CarCard from '@/components/CarCard';
@@ -21,7 +21,6 @@ export default function Index() {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('newest');
   const [fuelFilter, setFuelFilter] = useState('all');
-  const [stateFilter, setStateFilter] = useState('all');
 
   const { data: cars = [], isLoading } = useQuery({
     queryKey: ['cars-public'],
@@ -30,6 +29,7 @@ export default function Index() {
         .from('cars')
         .select('*')
         .eq('status', 'available')
+        .eq('seller_state', APP_STATE)
         .order('created_at', { ascending: false });
       if (error) throw error;
       return data as Car[];
@@ -37,7 +37,6 @@ export default function Index() {
   });
 
   const fuels = [...new Set(cars.map((c) => c.fuel))];
-  const states = [...new Set(cars.map((c) => c.seller_state).filter(Boolean))].sort();
 
   const filtered = cars
     .filter((car) => {
@@ -50,8 +49,7 @@ export default function Index() {
         car.seller_city?.toLowerCase().includes(q) ||
         String(car.year).includes(q);
       const matchesFuel = fuelFilter === 'all' || car.fuel === fuelFilter;
-      const matchesState = stateFilter === 'all' || car.seller_state === stateFilter;
-      return matchesSearch && matchesFuel && matchesState;
+      return matchesSearch && matchesFuel;
     })
     .sort((a, b) => {
       if (sortBy === 'newest')
@@ -74,7 +72,7 @@ export default function Index() {
         <div className="container mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-primary-foreground/10 border border-primary-foreground/20 rounded-full px-4 py-1.5 text-sm mb-6">
             <Zap className="h-3.5 w-3.5 text-gold" />
-            <span className="text-primary-foreground/80">Anuncie seu carro de graça</span>
+            <span className="text-primary-foreground/80">Anuncie seu carro de graça em {APP_STATE_LABEL}</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
             {APP_NAME}
@@ -109,7 +107,7 @@ export default function Index() {
             <div className="flex items-center justify-center gap-6 md:gap-10 mt-10 text-sm text-primary-foreground/60 flex-wrap">
               <div>
                 <span className="text-2xl font-bold text-primary-foreground">{cars.length}</span>
-                <span className="ml-1">anúncios</span>
+                <span className="ml-1">anúncios em {APP_STATE_LABEL}</span>
               </div>
               <div className="w-px h-6 bg-primary-foreground/20 hidden sm:block" />
               <div>
@@ -118,15 +116,6 @@ export default function Index() {
                 <span className="text-sm"> até </span>
                 <span className="font-semibold text-gold">{formatCurrency(maxPrice)}</span>
               </div>
-              {states.length > 0 && (
-                <>
-                  <div className="w-px h-6 bg-primary-foreground/20 hidden sm:block" />
-                  <div>
-                    <span className="font-semibold text-primary-foreground">{states.length}</span>
-                    <span className="ml-1">estado{states.length > 1 ? 's' : ''}</span>
-                  </div>
-                </>
-              )}
             </div>
           )}
         </div>
@@ -141,19 +130,6 @@ export default function Index() {
               : `${filtered.length} anúncio${filtered.length !== 1 ? 's' : ''}`}
           </h2>
           <div className="flex gap-2 flex-wrap">
-            {states.length > 1 && (
-              <Select value={stateFilter} onValueChange={setStateFilter}>
-                <SelectTrigger className="w-28 h-9 text-sm bg-card">
-                  <SelectValue placeholder="Estado" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Estado</SelectItem>
-                  {states.map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
             {fuels.length > 0 && (
               <Select value={fuelFilter} onValueChange={setFuelFilter}>
                 <SelectTrigger className="w-32 h-9 text-sm bg-card">

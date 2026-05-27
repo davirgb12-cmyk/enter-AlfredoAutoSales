@@ -6,6 +6,7 @@ import { Car, formatCurrency, formatKm, getWhatsAppNumber } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import FipeBadge from '@/components/FipeBadge';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -227,6 +228,14 @@ export default function CarDetail() {
                 </div>
               ))}
             </div>
+
+            {/* FIPE */}
+            <FipeBadge
+              brand={car.brand}
+              model={car.model}
+              year={car.year}
+              sellingPrice={car.selling_price}
+            />
 
             {/* Description */}
             {car.description && (

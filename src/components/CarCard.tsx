@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Gauge, Calendar, Fuel, MessageCircle, MapPin } from 'lucide-react';
+import FipeBadge from '@/components/FipeBadge';
 
 interface CarCardProps {
   car: Car;
@@ -78,11 +79,19 @@ export default function CarCard({ car }: CarCardProps) {
           </h3>
         </Link>
 
-        <div className="text-2xl font-bold text-gold mb-3">
+        <div className="text-2xl font-bold text-gold mb-1">
           {formatCurrency(car.selling_price)}
         </div>
 
-        <div className="grid grid-cols-3 gap-x-2 gap-y-1.5 text-xs text-muted-foreground mb-4">
+        <FipeBadge
+          compact
+          brand={car.brand}
+          model={car.model}
+          year={car.year}
+          sellingPrice={car.selling_price}
+        />
+
+        <div className="grid grid-cols-3 gap-x-2 gap-y-1.5 text-xs text-muted-foreground mt-3 mb-4">
           <div className="flex items-center gap-1">
             <Calendar className="h-3 w-3 flex-shrink-0" />
             <span>{car.year}</span>

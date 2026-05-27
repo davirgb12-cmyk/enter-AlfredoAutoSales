@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Zap, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { APP_NAME, APP_TAGLINE } from '@/lib/types';
+import { APP_NAME, APP_TAGLINE, APP_STATE_LABEL } from '@/lib/types';
 
 export default function Footer() {
   return (
@@ -17,7 +17,7 @@ export default function Footer() {
               <h3 className="text-xl font-bold">{APP_NAME}</h3>
             </div>
             <p className="text-primary-foreground/60 text-sm max-w-xs">
-              {APP_TAGLINE}. Anuncie seu carro gratuitamente e alcance compradores em todo o Brasil.
+              {APP_TAGLINE}. Anuncie seu carro gratuitamente e alcance compradores em todo o {APP_STATE_LABEL}.
             </p>
           </div>
 

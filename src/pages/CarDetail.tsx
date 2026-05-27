@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import FipeBadge from '@/components/FipeBadge';
+import ChatPanel from '@/components/ChatPanel';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -295,6 +296,9 @@ export default function CarDetail() {
                 )}
               </div>
             )}
+
+            {/* Chat with seller */}
+            <ChatPanel car={car} />
           </div>
         </div>
       </div>

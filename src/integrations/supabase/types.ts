@@ -3181,6 +3181,43 @@ export type Database = {
         }
         Relationships: []
       }
+      messages: {
+        Row: {
+          car_id: string
+          content: string
+          created_at: string
+          id: string
+          sender_name: string
+          sender_type: string
+          user_id: string | null
+        }
+        Insert: {
+          car_id: string
+          content: string
+          created_at?: string
+          id?: string
+          sender_name?: string
+          sender_type?: string
+          user_id?: string | null
+        }
+        Update: {
+          car_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          sender_name?: string
+          sender_type?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_car_id_fkey"
+            columns: ["car_id"]
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

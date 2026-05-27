@@ -28,8 +28,11 @@ import {
   Loader2,
   ArrowUpDown,
   Eye,
+  MessageCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { formatDistanceToNow } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 export default function AdminDashboard() {
   const queryClient = useQueryClient();
@@ -53,6 +56,25 @@ export default function AdminDashboard() {
     enabled: !!user?.id,
   });
 
+  // Messages for this seller's cars
+  const carIds = cars.map((c) => c.id);
+  const { data: messages = [] } = useQuery({
+    queryKey: ['messages-admin', carIds.join(',')],
+    queryFn: async () => {
+      if (!carIds.length) return [];
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .in('car_id', carIds)
+        .order('created_at', { ascending: false })
+        .limit(30);
+      if (error) throw error;
+      return data as { id: string; car_id: string; content: string; sender_name: string; sender_type: string; created_at: string }[];
+    },
+    enabled: carIds.length > 0,
+    refetchInterval: 15000, // poll every 15s
+  });
+
   const stats = useMemo(() => {
     const available = cars.filter((c) => c.status === 'available');
     const sold = cars.filter((c) => c.status === 'sold');
@@ -63,8 +85,9 @@ export default function AdminDashboard() {
       totalInvested: cars.reduce((s, c) => s + c.cost_price, 0),
       potentialProfit: available.reduce((s, c) => s + (c.selling_price - c.cost_price), 0),
       realizedProfit: sold.reduce((s, c) => s + (c.selling_price - c.cost_price), 0),
+      msgCount: messages.filter((m) => m.sender_type === 'buyer').length,
     };
-  }, [cars]);
+  }, [cars, messages]);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from('cars').delete().eq('id', id);
@@ -125,6 +148,14 @@ export default function AdminDashboard() {
       color: 'text-success',
       bg: 'bg-success/10',
     },
+    {
+      icon: MessageCircle,
+      label: 'Mensagens',
+      value: stats.msgCount,
+      sub: 'de compradores',
+      color: 'text-primary',
+      bg: 'bg-primary/10',
+    },
   ];
 
   return (
@@ -148,7 +179,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           {statCards.map(({ icon: Icon, label, value, sub, color, bg }) => (
             <div key={label} className="bg-card rounded-xl p-4 border border-border shadow-card">
               <div className={`w-10 h-10 rounded-lg ${bg} flex items-center justify-center mb-3`}>
@@ -296,6 +327,57 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
+
+      {/* Messages inbox */}
+      {messages.length > 0 && (
+        <div className="container mx-auto px-4 pb-8">
+          <div className="bg-card rounded-xl border border-border shadow-card overflow-hidden">
+            <div className="p-4 border-b border-border flex items-center gap-2">
+              <MessageCircle className="h-4 w-4 text-primary" />
+              <h2 className="font-semibold text-card-foreground">
+                Mensagens recebidas
+              </h2>
+              <span className="text-xs bg-primary/10 text-primary rounded-full px-2 py-0.5 font-medium">
+                {messages.length}
+              </span>
+            </div>
+            <div className="divide-y divide-border">
+              {messages.map((msg) => {
+                const car = cars.find((c) => c.id === msg.car_id);
+                return (
+                  <div key={msg.id} className="flex items-start gap-3 p-4 hover:bg-muted/30 transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0 text-sm font-bold text-muted-foreground">
+                      {msg.sender_name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-medium text-card-foreground">{msg.sender_name}</span>
+                        {car && (
+                          <Link
+                            to={`/carro/${car.id}`}
+                            className="text-xs text-primary hover:underline truncate max-w-[180px]"
+                          >
+                            {car.title}
+                          </Link>
+                        )}
+                        <span className="text-xs text-muted-foreground ml-auto flex-shrink-0">
+                          {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true, locale: ptBR })}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{msg.content}</p>
+                    </div>
+                    {car && (
+                      <Button asChild variant="outline" size="sm" className="flex-shrink-0 h-8">
+                        <Link to={`/carro/${car.id}`}>Responder</Link>
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       <AlertDialog open={!!deletingId} onOpenChange={(open) => !open && setDeletingId(null)}>
         <AlertDialogContent>

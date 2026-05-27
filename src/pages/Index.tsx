@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Car } from '@/lib/types';
-import { formatCurrency, WHATSAPP_NUMBER } from '@/lib/types';
+import { Car, APP_NAME, APP_TAGLINE, formatCurrency } from '@/lib/types';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CarCard from '@/components/CarCard';
@@ -15,12 +15,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Search, Car as CarIcon, MessageCircle, Phone } from 'lucide-react';
+import { Search, Car as CarIcon, PlusCircle, Zap } from 'lucide-react';
 
 export default function Index() {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('newest');
   const [fuelFilter, setFuelFilter] = useState('all');
+  const [stateFilter, setStateFilter] = useState('all');
 
   const { data: cars = [], isLoading } = useQuery({
     queryKey: ['cars-public'],
@@ -36,6 +37,7 @@ export default function Index() {
   });
 
   const fuels = [...new Set(cars.map((c) => c.fuel))];
+  const states = [...new Set(cars.map((c) => c.seller_state).filter(Boolean))].sort();
 
   const filtered = cars
     .filter((car) => {
@@ -45,9 +47,11 @@ export default function Index() {
         car.title.toLowerCase().includes(q) ||
         car.brand.toLowerCase().includes(q) ||
         car.model.toLowerCase().includes(q) ||
+        car.seller_city?.toLowerCase().includes(q) ||
         String(car.year).includes(q);
       const matchesFuel = fuelFilter === 'all' || car.fuel === fuelFilter;
-      return matchesSearch && matchesFuel;
+      const matchesState = stateFilter === 'all' || car.seller_state === stateFilter;
+      return matchesSearch && matchesFuel && matchesState;
     })
     .sort((a, b) => {
       if (sortBy === 'newest')
@@ -61,32 +65,29 @@ export default function Index() {
   const minPrice = cars.length ? Math.min(...cars.map((c) => c.selling_price)) : 0;
   const maxPrice = cars.length ? Math.max(...cars.map((c) => c.selling_price)) : 0;
 
-  const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=Olá%20Alfredo!%20Quero%20saber%20mais%20sobre%20os%20carros%20disponíveis.`;
-
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
 
-      {/* Hero Section */}
+      {/* Hero */}
       <section className="hero-gradient text-primary-foreground py-16 md:py-24 px-4">
         <div className="container mx-auto text-center">
-          <p className="text-gold text-sm font-semibold uppercase tracking-widest mb-3">
-            Jussara, Goiás · (62) 98500-6082
-          </p>
+          <div className="inline-flex items-center gap-2 bg-primary-foreground/10 border border-primary-foreground/20 rounded-full px-4 py-1.5 text-sm mb-6">
+            <Zap className="h-3.5 w-3.5 text-gold" />
+            <span className="text-primary-foreground/80">Anuncie seu carro de graça</span>
+          </div>
           <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
-            Seu próximo carro
-            <br />
-            <span className="text-gold">está aqui</span>
+            {APP_NAME}
           </h1>
           <p className="text-primary-foreground/70 text-lg mb-10 max-w-lg mx-auto">
-            Carros usados selecionados com qualidade e preço justo. Fale direto com o Alfredo!
+            {APP_TAGLINE}. Encontre o carro ideal ou anuncie o seu.
           </p>
 
           <div className="max-w-xl mx-auto flex gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar marca, modelo ou ano..."
+                placeholder="Buscar marca, modelo, cidade..."
                 className="pl-9 bg-card text-card-foreground border-border h-12 rounded-xl shadow-lg"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -95,32 +96,37 @@ export default function Index() {
             <Button
               asChild
               size="lg"
-              className="bg-green-600 hover:bg-green-700 text-primary-foreground h-12 px-4 shadow-lg gap-2"
+              className="bg-gold hover:bg-gold/90 text-gold-foreground h-12 px-5 shadow-lg gap-2 font-semibold"
             >
-              <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                <MessageCircle className="h-4 w-4" />
-                <span className="hidden sm:inline">WhatsApp</span>
-              </a>
+              <Link to="/admin">
+                <PlusCircle className="h-4 w-4" />
+                <span className="hidden sm:inline">Anunciar</span>
+              </Link>
             </Button>
           </div>
 
           {cars.length > 0 && (
-            <div className="flex items-center justify-center gap-8 mt-10 text-sm text-primary-foreground/60">
+            <div className="flex items-center justify-center gap-6 md:gap-10 mt-10 text-sm text-primary-foreground/60 flex-wrap">
               <div>
                 <span className="text-2xl font-bold text-primary-foreground">{cars.length}</span>
-                <span className="ml-1">veículos</span>
+                <span className="ml-1">anúncios</span>
               </div>
-              <div className="w-px h-6 bg-primary-foreground/20" />
+              <div className="w-px h-6 bg-primary-foreground/20 hidden sm:block" />
               <div>
                 <span className="text-sm">De </span>
                 <span className="font-semibold text-gold">{formatCurrency(minPrice)}</span>
-                <span className="text-sm"> a </span>
+                <span className="text-sm"> até </span>
                 <span className="font-semibold text-gold">{formatCurrency(maxPrice)}</span>
               </div>
-              <div className="hidden sm:flex items-center gap-1">
-                <Phone className="h-3.5 w-3.5" />
-                <span>(62) 98500-6082</span>
-              </div>
+              {states.length > 0 && (
+                <>
+                  <div className="w-px h-6 bg-primary-foreground/20 hidden sm:block" />
+                  <div>
+                    <span className="font-semibold text-primary-foreground">{states.length}</span>
+                    <span className="ml-1">estado{states.length > 1 ? 's' : ''}</span>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -132,20 +138,31 @@ export default function Index() {
           <h2 className="text-xl font-bold text-foreground">
             {isLoading
               ? 'Carregando...'
-              : `${filtered.length} veículo${filtered.length !== 1 ? 's' : ''} disponível${filtered.length !== 1 ? 'is' : ''}`}
+              : `${filtered.length} anúncio${filtered.length !== 1 ? 's' : ''}`}
           </h2>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            {states.length > 1 && (
+              <Select value={stateFilter} onValueChange={setStateFilter}>
+                <SelectTrigger className="w-28 h-9 text-sm bg-card">
+                  <SelectValue placeholder="Estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Estado</SelectItem>
+                  {states.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
             {fuels.length > 0 && (
               <Select value={fuelFilter} onValueChange={setFuelFilter}>
-                <SelectTrigger className="w-36 h-9 text-sm bg-card">
+                <SelectTrigger className="w-32 h-9 text-sm bg-card">
                   <SelectValue placeholder="Combustível" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Combustível</SelectItem>
                   {fuels.map((f) => (
-                    <SelectItem key={f} value={f}>
-                      {f}
-                    </SelectItem>
+                    <SelectItem key={f} value={f}>{f}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -173,18 +190,15 @@ export default function Index() {
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
             <CarIcon className="h-20 w-20 mb-5 opacity-10" />
-            <p className="text-xl font-semibold text-foreground">Nenhum veículo encontrado</p>
+            <p className="text-xl font-semibold text-foreground">Nenhum anúncio encontrado</p>
             <p className="text-sm mt-2 mb-6">
-              {search ? 'Tente outro termo de busca' : 'Em breve novos veículos serão adicionados'}
+              {search ? 'Tente outro termo de busca' : 'Seja o primeiro a anunciar!'}
             </p>
-            <Button
-              asChild
-              className="bg-green-600 hover:bg-green-700 text-primary-foreground gap-2"
-            >
-              <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                <MessageCircle className="h-4 w-4" />
-                Consultar pelo WhatsApp
-              </a>
+            <Button asChild className="bg-gold hover:bg-gold/90 text-gold-foreground gap-2 font-semibold">
+              <Link to="/admin">
+                <PlusCircle className="h-4 w-4" />
+                Anunciar Grátis
+              </Link>
             </Button>
           </div>
         ) : (

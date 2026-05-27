@@ -1,10 +1,9 @@
 import { Link } from 'react-router-dom';
-import { Car } from '@/lib/types';
-import { formatCurrency, formatKm, WHATSAPP_NUMBER } from '@/lib/types';
+import { Car, formatCurrency, formatKm, getWhatsAppNumber } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Gauge, Calendar, Fuel, MessageCircle, Settings2 } from 'lucide-react';
+import { Gauge, Calendar, Fuel, MessageCircle, MapPin } from 'lucide-react';
 
 interface CarCardProps {
   car: Car;
@@ -12,10 +11,13 @@ interface CarCardProps {
 
 export default function CarCard({ car }: CarCardProps) {
   const mainImage = car.images?.[0];
+  const whatsappNumber = getWhatsAppNumber(car.seller_phone);
   const whatsappMsg = encodeURIComponent(
-    `Olá Alfredo! Tenho interesse no ${car.title}. Ainda está disponível?`
+    `Olá ${car.seller_name || ''}! Vi seu anúncio do ${car.title} no GiroCar. Ainda está disponível?`
   );
-  const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMsg}`;
+  const whatsappLink = whatsappNumber
+    ? `https://wa.me/${whatsappNumber}?text=${whatsappMsg}`
+    : null;
 
   return (
     <Card className="overflow-hidden hover:shadow-hover transition-all duration-300 group border-border bg-card shadow-card">
@@ -34,7 +36,7 @@ export default function CarCard({ car }: CarCardProps) {
             <div className="w-full h-full flex items-center justify-center bg-secondary">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-16 w-16 text-muted-foreground/30"
+                className="h-16 w-16 text-muted-foreground/20"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -60,6 +62,16 @@ export default function CarCard({ car }: CarCardProps) {
       </Link>
 
       <CardContent className="p-4">
+        {/* Seller location */}
+        {(car.seller_city || car.seller_state) && (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1.5">
+            <MapPin className="h-3 w-3 flex-shrink-0" />
+            <span>
+              {[car.seller_city, car.seller_state].filter(Boolean).join(', ')}
+            </span>
+          </div>
+        )}
+
         <Link to={`/carro/${car.id}`}>
           <h3 className="font-semibold text-card-foreground hover:text-primary transition-colors line-clamp-2 mb-1 leading-snug">
             {car.title}
@@ -70,36 +82,38 @@ export default function CarCard({ car }: CarCardProps) {
           {formatCurrency(car.selling_price)}
         </div>
 
-        <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs text-muted-foreground mb-4">
-          <div className="flex items-center gap-1.5">
-            <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+        <div className="grid grid-cols-3 gap-x-2 gap-y-1.5 text-xs text-muted-foreground mb-4">
+          <div className="flex items-center gap-1">
+            <Calendar className="h-3 w-3 flex-shrink-0" />
             <span>{car.year}</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <Gauge className="h-3.5 w-3.5 flex-shrink-0" />
+          <div className="flex items-center gap-1 col-span-2">
+            <Gauge className="h-3 w-3 flex-shrink-0" />
             <span>{formatKm(car.km)}</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <Fuel className="h-3.5 w-3.5 flex-shrink-0" />
-            <span>{car.fuel}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Settings2 className="h-3.5 w-3.5 flex-shrink-0" />
-            <span>{car.transmission}</span>
+          <div className="flex items-center gap-1 col-span-3">
+            <Fuel className="h-3 w-3 flex-shrink-0" />
+            <span>{car.fuel} · {car.transmission}</span>
           </div>
         </div>
 
         {car.status === 'available' ? (
-          <Button
-            asChild
-            size="sm"
-            className="w-full bg-green-600 hover:bg-green-700 text-primary-foreground gap-2"
-          >
-            <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-              <MessageCircle className="h-3.5 w-3.5" />
-              Tenho Interesse
-            </a>
-          </Button>
+          whatsappLink ? (
+            <Button
+              asChild
+              size="sm"
+              className="w-full bg-green-600 hover:bg-green-700 text-primary-foreground gap-2"
+            >
+              <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                <MessageCircle className="h-3.5 w-3.5" />
+                Falar com vendedor
+              </a>
+            </Button>
+          ) : (
+            <Button asChild size="sm" variant="outline" className="w-full">
+              <Link to={`/carro/${car.id}`}>Ver detalhes</Link>
+            </Button>
+          )
         ) : (
           <Badge variant="secondary" className="w-full justify-center py-1.5">
             Vendido

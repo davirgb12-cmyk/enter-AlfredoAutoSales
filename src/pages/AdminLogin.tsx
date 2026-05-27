@@ -1,14 +1,15 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Car, Lock, Mail, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, Loader2, Zap, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import { APP_NAME } from '@/lib/types';
 
 export default function AdminLogin() {
-  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [mode, setMode] = useState<'login' | 'signup'>('signup');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -38,7 +39,7 @@ export default function AdminLogin() {
             toast.error(error);
           }
         } else {
-          toast.success('Bem-vindo, Alfredo!');
+          toast.success('Bem-vindo de volta!');
           navigate('/admin/dashboard');
         }
       } else {
@@ -46,8 +47,8 @@ export default function AdminLogin() {
         if (error) {
           toast.error(error);
         } else {
-          toast.success('Conta criada com sucesso!');
-          navigate('/admin/dashboard');
+          toast.success('Conta criada! Agora adicione seu primeiro anúncio.');
+          navigate('/admin/adicionar');
         }
       }
     } finally {
@@ -58,24 +59,36 @@ export default function AdminLogin() {
   return (
     <div className="min-h-screen hero-gradient flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
+        {/* Back link */}
+        <div className="mb-6">
+          <Button variant="ghost" size="sm" asChild className="text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10 -ml-2">
+            <Link to="/">
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              Ver anúncios
+            </Link>
+          </Button>
+        </div>
+
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gold mb-4 shadow-lg">
-            <Car className="h-8 w-8 text-gold-foreground" />
+            <Zap className="h-8 w-8 text-gold-foreground" />
           </div>
-          <h1 className="text-2xl font-bold text-primary-foreground">Alfredo Junior Veículos</h1>
-          <p className="text-primary-foreground/60 text-sm mt-1">Área Administrativa</p>
+          <h1 className="text-2xl font-bold text-primary-foreground">{APP_NAME}</h1>
+          <p className="text-primary-foreground/60 text-sm mt-1">
+            {mode === 'signup' ? 'Crie sua conta e anuncie grátis' : 'Entre na sua conta'}
+          </p>
         </div>
 
         {/* Card */}
         <div className="bg-card rounded-2xl shadow-2xl p-8">
           <h2 className="text-xl font-bold text-card-foreground mb-1">
-            {mode === 'login' ? 'Entrar' : 'Criar conta'}
+            {mode === 'login' ? 'Entrar' : 'Criar conta grátis'}
           </h2>
           <p className="text-muted-foreground text-sm mb-6">
             {mode === 'login'
-              ? 'Acesse o painel de gerenciamento'
-              : 'Configure o acesso administrativo'}
+              ? 'Acesse seus anúncios'
+              : 'Cadastre-se para anunciar seu carro'}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -120,7 +133,7 @@ export default function AdminLogin() {
 
             <Button
               type="submit"
-              className="w-full bg-primary hover:bg-primary/90 h-11 mt-2"
+              className="w-full bg-gold hover:bg-gold/90 text-gold-foreground h-11 mt-2 font-semibold"
               disabled={loading}
             >
               {loading ? (
@@ -128,24 +141,13 @@ export default function AdminLogin() {
               ) : mode === 'login' ? (
                 'Entrar'
               ) : (
-                'Criar conta e entrar'
+                'Criar conta e anunciar'
               )}
             </Button>
           </form>
 
           <div className="mt-6 pt-5 border-t border-border text-center">
-            {mode === 'login' ? (
-              <div className="text-sm text-muted-foreground">
-                <span>Primeiro acesso? </span>
-                <button
-                  type="button"
-                  onClick={() => setMode('signup')}
-                  className="text-primary font-medium hover:underline"
-                >
-                  Criar conta
-                </button>
-              </div>
-            ) : (
+            {mode === 'signup' ? (
               <div className="text-sm text-muted-foreground">
                 <span>Já tem conta? </span>
                 <button
@@ -156,13 +158,20 @@ export default function AdminLogin() {
                   Entrar
                 </button>
               </div>
+            ) : (
+              <div className="text-sm text-muted-foreground">
+                <span>Não tem conta? </span>
+                <button
+                  type="button"
+                  onClick={() => setMode('signup')}
+                  className="text-primary font-medium hover:underline"
+                >
+                  Cadastrar grátis
+                </button>
+              </div>
             )}
           </div>
         </div>
-
-        <p className="text-center text-primary-foreground/40 text-xs mt-6">
-          Acesso restrito ao administrador
-        </p>
       </div>
     </div>
   );

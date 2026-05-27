@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Car, formatCurrency, formatKm, WHATSAPP_NUMBER } from '@/lib/types';
+import { Car, formatCurrency, formatKm, getWhatsAppNumber } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -21,12 +21,14 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
+  MapPin,
+  User,
 } from 'lucide-react';
 
 export default function CarDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
   const [activeImage, setActiveImage] = useState(0);
 
   const { data: car, isLoading, error } = useQuery({
@@ -58,7 +60,7 @@ export default function CarDetail() {
         <Button variant="outline" asChild>
           <Link to="/">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Voltar para o início
+            Voltar para os anúncios
           </Link>
         </Button>
       </div>
@@ -66,11 +68,17 @@ export default function CarDetail() {
   }
 
   const images = car.images?.length ? car.images : [];
+  const whatsappNumber = getWhatsAppNumber(car.seller_phone);
   const whatsappMsg = encodeURIComponent(
-    `Olá Alfredo! Tenho interesse no ${car.title} (${formatCurrency(car.selling_price)}). Ainda está disponível?`
+    `Olá ${car.seller_name || ''}! Vi seu anúncio do ${car.title} (${formatCurrency(car.selling_price)}) no GiroCar. Ainda está disponível?`
   );
-  const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMsg}`;
-  const phoneLink = `tel:+${WHATSAPP_NUMBER}`;
+  const whatsappLink = whatsappNumber
+    ? `https://wa.me/${whatsappNumber}?text=${whatsappMsg}`
+    : null;
+  const phoneLink = whatsappNumber ? `tel:+${whatsappNumber}` : null;
+
+  const isOwner = isAdmin && user?.id === car.user_id;
+  const canEdit = isOwner || (isAdmin && !car.user_id);
 
   const specs = [
     { icon: Calendar, label: 'Ano', value: String(car.year) },
@@ -85,13 +93,12 @@ export default function CarDetail() {
       <Navbar />
 
       <div className="container mx-auto px-4 py-6 flex-1">
-        {/* Breadcrumb */}
         <div className="flex items-center justify-between mb-6">
           <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="gap-1 -ml-2">
             <ArrowLeft className="h-4 w-4" />
             Voltar
           </Button>
-          {isAdmin && (
+          {canEdit && (
             <Button variant="outline" size="sm" asChild>
               <Link to={`/admin/editar/${car.id}`}>
                 <Edit className="h-4 w-4 mr-1.5" />
@@ -118,13 +125,15 @@ export default function CarDetail() {
                   {images.length > 1 && (
                     <>
                       <button
-                        onClick={() => setActiveImage((prev) => (prev - 1 + images.length) % images.length)}
+                        onClick={() =>
+                          setActiveImage((p) => (p - 1 + images.length) % images.length)
+                        }
                         className="absolute left-3 top-1/2 -translate-y-1/2 bg-foreground/50 hover:bg-foreground/70 text-primary-foreground rounded-full p-1.5 transition-colors"
                       >
                         <ChevronLeft className="h-5 w-5" />
                       </button>
                       <button
-                        onClick={() => setActiveImage((prev) => (prev + 1) % images.length)}
+                        onClick={() => setActiveImage((p) => (p + 1) % images.length)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 bg-foreground/50 hover:bg-foreground/70 text-primary-foreground rounded-full p-1.5 transition-colors"
                       >
                         <ChevronRight className="h-5 w-5" />
@@ -167,7 +176,9 @@ export default function CarDetail() {
                     key={i}
                     onClick={() => setActiveImage(i)}
                     className={`flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all ${
-                      i === activeImage ? 'border-primary' : 'border-border opacity-60 hover:opacity-100'
+                      i === activeImage
+                        ? 'border-primary'
+                        : 'border-border opacity-60 hover:opacity-100'
                     }`}
                   >
                     <img src={img} alt="" className="w-full h-full object-cover" />
@@ -178,9 +189,9 @@ export default function CarDetail() {
           </div>
 
           {/* Car Info */}
-          <div className="space-y-6">
+          <div className="space-y-5">
             <div>
-              <div className="flex items-start justify-between gap-3 mb-2">
+              <div className="flex items-start justify-between gap-3 mb-1">
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground leading-tight">
                   {car.title}
                 </h1>
@@ -200,7 +211,7 @@ export default function CarDetail() {
             </div>
 
             {/* Specs Grid */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2.5">
               {specs.map(({ icon: Icon, label, value }) => (
                 <div
                   key={label}
@@ -227,30 +238,52 @@ export default function CarDetail() {
               </div>
             )}
 
+            {/* Seller info */}
+            <div className="p-4 rounded-lg bg-card border border-border space-y-2">
+              <h3 className="font-semibold text-card-foreground text-sm">Vendedor</h3>
+              {car.seller_name && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <User className="h-4 w-4 text-primary flex-shrink-0" />
+                  <span className="font-medium text-foreground">{car.seller_name}</span>
+                </div>
+              )}
+              {(car.seller_city || car.seller_state) && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
+                  <span>{[car.seller_city, car.seller_state].filter(Boolean).join(', ')}</span>
+                </div>
+              )}
+            </div>
+
             {/* Contact CTAs */}
             {car.status === 'available' && (
               <div className="space-y-3">
-                <Button
-                  asChild
-                  size="lg"
-                  className="w-full bg-green-600 hover:bg-green-700 text-primary-foreground gap-2 h-12 text-base"
-                >
-                  <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                    <MessageCircle className="h-5 w-5" />
-                    Falar no WhatsApp
-                  </a>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="w-full gap-2 h-12"
-                >
-                  <a href={phoneLink}>
-                    <Phone className="h-4 w-4" />
-                    Ligar: (62) 98500-6082
-                  </a>
-                </Button>
+                {whatsappLink ? (
+                  <>
+                    <Button
+                      asChild
+                      size="lg"
+                      className="w-full bg-green-600 hover:bg-green-700 text-primary-foreground gap-2 h-12 text-base"
+                    >
+                      <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                        <MessageCircle className="h-5 w-5" />
+                        Falar no WhatsApp
+                      </a>
+                    </Button>
+                    {phoneLink && (
+                      <Button asChild variant="outline" size="lg" className="w-full gap-2 h-12">
+                        <a href={phoneLink}>
+                          <Phone className="h-4 w-4" />
+                          Ligar para o vendedor
+                        </a>
+                      </Button>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-2">
+                    Contato do vendedor não informado
+                  </p>
+                )}
               </div>
             )}
           </div>

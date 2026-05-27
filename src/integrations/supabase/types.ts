@@ -3121,11 +3121,16 @@ export type Database = {
           images: string[] | null
           km: number
           model: string
+          seller_city: string
+          seller_name: string
+          seller_phone: string
+          seller_state: string
           selling_price: number
           status: string
           title: string
           transmission: string
           updated_at: string
+          user_id: string | null
           year: number
         }
         Insert: {
@@ -3139,11 +3144,16 @@ export type Database = {
           images?: string[] | null
           km?: number
           model: string
+          seller_city?: string
+          seller_name?: string
+          seller_phone?: string
+          seller_state?: string
           selling_price?: number
           status?: string
           title: string
           transmission?: string
           updated_at?: string
+          user_id?: string | null
           year: number
         }
         Update: {
@@ -3157,11 +3167,16 @@ export type Database = {
           images?: string[] | null
           km?: number
           model?: string
+          seller_city?: string
+          seller_name?: string
+          seller_phone?: string
+          seller_state?: string
           selling_price?: number
           status?: string
           title?: string
           transmission?: string
           updated_at?: string
+          user_id?: string | null
           year?: number
         }
         Relationships: []

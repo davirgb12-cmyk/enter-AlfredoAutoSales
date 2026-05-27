@@ -1,0 +1,30 @@
+
+-- Add seller info and user ownership to cars
+ALTER TABLE public.cars
+  ADD COLUMN IF NOT EXISTS seller_name text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS seller_phone text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS seller_city text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS seller_state text NOT NULL DEFAULT 'GO',
+  ADD COLUMN IF NOT EXISTS user_id uuid REFERENCES auth.users(id) ON DELETE SET NULL;
+
+-- Drop old generic authenticated policies
+DROP POLICY IF EXISTS "Authenticated can insert cars" ON public.cars;
+DROP POLICY IF EXISTS "Authenticated can update cars" ON public.cars;
+DROP POLICY IF EXISTS "Authenticated can delete cars" ON public.cars;
+
+-- New user-scoped policies
+-- INSERT: user must set their own user_id
+CREATE POLICY "Users can insert own cars"
+  ON public.cars FOR INSERT TO authenticated
+  WITH CHECK (auth.uid() = user_id);
+
+-- UPDATE: can only update own cars (or legacy null-owner cars)
+CREATE POLICY "Users can update own cars"
+  ON public.cars FOR UPDATE TO authenticated
+  USING (auth.uid() = user_id OR user_id IS NULL)
+  WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
+
+-- DELETE: can only delete own cars (or legacy null-owner cars)
+CREATE POLICY "Users can delete own cars"
+  ON public.cars FOR DELETE TO authenticated
+  USING (auth.uid() = user_id OR user_id IS NULL);

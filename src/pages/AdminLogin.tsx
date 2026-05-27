@@ -135,8 +135,8 @@ export default function AdminLogin() {
 
           <div className="mt-6 pt-5 border-t border-border text-center">
             {mode === 'login' ? (
-              <p className="text-sm text-muted-foreground">
-                Primeiro acesso?{' '}
+              <div className="text-sm text-muted-foreground">
+                <span>Primeiro acesso? </span>
                 <button
                   type="button"
                   onClick={() => setMode('signup')}
@@ -144,10 +144,10 @@ export default function AdminLogin() {
                 >
                   Criar conta
                 </button>
-              </p>
+              </div>
             ) : (
-              <p className="text-sm text-muted-foreground">
-                Já tem conta?{' '}
+              <div className="text-sm text-muted-foreground">
+                <span>Já tem conta? </span>
                 <button
                   type="button"
                   onClick={() => setMode('login')}
@@ -155,7 +155,7 @@ export default function AdminLogin() {
                 >
                   Entrar
                 </button>
-              </p>
+              </div>
             )}
           </div>
         </div>

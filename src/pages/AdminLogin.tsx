@@ -1,0 +1,169 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Car, Lock, Mail, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+
+export default function AdminLogin() {
+  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { signIn, signUp } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) {
+      toast.error('Preencha todos os campos');
+      return;
+    }
+    if (password.length < 6) {
+      toast.error('A senha deve ter pelo menos 6 caracteres');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      if (mode === 'login') {
+        const { error } = await signIn(email, password);
+        if (error) {
+          if (error.includes('Invalid login credentials')) {
+            toast.error('Email ou senha incorretos');
+          } else {
+            toast.error(error);
+          }
+        } else {
+          toast.success('Bem-vindo, Alfredo!');
+          navigate('/admin/dashboard');
+        }
+      } else {
+        const { error } = await signUp(email, password);
+        if (error) {
+          toast.error(error);
+        } else {
+          toast.success('Conta criada com sucesso!');
+          navigate('/admin/dashboard');
+        }
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen hero-gradient flex items-center justify-center px-4">
+      <div className="w-full max-w-sm">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gold mb-4 shadow-lg">
+            <Car className="h-8 w-8 text-gold-foreground" />
+          </div>
+          <h1 className="text-2xl font-bold text-primary-foreground">Alfredo Junior Veículos</h1>
+          <p className="text-primary-foreground/60 text-sm mt-1">Área Administrativa</p>
+        </div>
+
+        {/* Card */}
+        <div className="bg-card rounded-2xl shadow-2xl p-8">
+          <h2 className="text-xl font-bold text-card-foreground mb-1">
+            {mode === 'login' ? 'Entrar' : 'Criar conta'}
+          </h2>
+          <p className="text-muted-foreground text-sm mb-6">
+            {mode === 'login'
+              ? 'Acesse o painel de gerenciamento'
+              : 'Configure o acesso administrativo'}
+          </p>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="email">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  className="pl-9"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="password">Senha</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  className="pl-9 pr-9"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full bg-primary hover:bg-primary/90 h-11 mt-2"
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : mode === 'login' ? (
+                'Entrar'
+              ) : (
+                'Criar conta e entrar'
+              )}
+            </Button>
+          </form>
+
+          <div className="mt-6 pt-5 border-t border-border text-center">
+            {mode === 'login' ? (
+              <p className="text-sm text-muted-foreground">
+                Primeiro acesso?{' '}
+                <button
+                  type="button"
+                  onClick={() => setMode('signup')}
+                  className="text-primary font-medium hover:underline"
+                >
+                  Criar conta
+                </button>
+              </p>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Já tem conta?{' '}
+                <button
+                  type="button"
+                  onClick={() => setMode('login')}
+                  className="text-primary font-medium hover:underline"
+                >
+                  Entrar
+                </button>
+              </p>
+            )}
+          </div>
+        </div>
+
+        <p className="text-center text-primary-foreground/40 text-xs mt-6">
+          Acesso restrito ao administrador
+        </p>
+      </div>
+    </div>
+  );
+}

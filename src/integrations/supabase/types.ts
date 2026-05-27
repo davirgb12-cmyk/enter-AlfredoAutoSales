@@ -3109,7 +3109,63 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      cars: {
+        Row: {
+          brand: string
+          color: string
+          cost_price: number
+          created_at: string
+          description: string | null
+          fuel: string
+          id: string
+          images: string[] | null
+          km: number
+          model: string
+          selling_price: number
+          status: string
+          title: string
+          transmission: string
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          brand: string
+          color?: string
+          cost_price?: number
+          created_at?: string
+          description?: string | null
+          fuel?: string
+          id?: string
+          images?: string[] | null
+          km?: number
+          model: string
+          selling_price?: number
+          status?: string
+          title: string
+          transmission?: string
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          brand?: string
+          color?: string
+          cost_price?: number
+          created_at?: string
+          description?: string | null
+          fuel?: string
+          id?: string
+          images?: string[] | null
+          km?: number
+          model?: string
+          selling_price?: number
+          status?: string
+          title?: string
+          transmission?: string
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

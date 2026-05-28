@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Search, Car as CarIcon, PlusCircle, Zap } from 'lucide-react';
+import { Search, Car as CarIcon, PlusCircle, Zap, MapPin } from 'lucide-react';
 
 export default function Index() {
   const [search, setSearch] = useState('');
@@ -71,8 +71,10 @@ export default function Index() {
       <section className="hero-gradient text-primary-foreground py-16 md:py-24 px-4">
         <div className="container mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-primary-foreground/10 border border-primary-foreground/20 rounded-full px-4 py-1.5 text-sm mb-6">
-            <Zap className="h-3.5 w-3.5 text-gold" />
-            <span className="text-primary-foreground/80">Anuncie seu carro de graça em {APP_STATE_LABEL}</span>
+            <MapPin className="h-3.5 w-3.5 text-gold" />
+            <span className="text-primary-foreground/80">
+              Marketplace exclusivo para <span className="font-semibold text-primary-foreground">Goiás</span>
+            </span>
           </div>
           <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
             {APP_NAME}

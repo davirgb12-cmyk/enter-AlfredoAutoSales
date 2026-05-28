@@ -18,7 +18,6 @@ import {
   LayoutDashboard,
   PlusCircle,
   Zap,
-  Bell,
   ChevronDown,
   MapPin,
   Menu,
@@ -33,7 +32,6 @@ export default function Navbar() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Fetch unread buyer message count for this seller
   const { data: msgCount = 0 } = useQuery({
     queryKey: ['msg-count-navbar', user?.id],
     queryFn: async () => {
@@ -62,218 +60,165 @@ export default function Navbar() {
   };
 
   const userInitial = user?.email?.charAt(0).toUpperCase() ?? '?';
-  const isActive = (path: string) => location.pathname === path;
+  const at = (path: string) => location.pathname === path;
 
   return (
     <header className="sticky top-0 z-50">
-      {/* ── Top identity bar ──────────────────────────────────────────────── */}
-      <div className="bg-foreground text-background text-[11px] hidden md:block">
-        <div className="container mx-auto px-4 py-1.5 flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-background/70">
-            <MapPin className="h-3 w-3" />
-            <span>
-              <span className="font-semibold text-background">GiroCar</span>
-              {' '}— Marketplace de carros em{' '}
-              <span className="font-semibold text-background">Goiás, Brasil</span>
-            </span>
-          </div>
-          <div className="flex items-center gap-4 text-background/60">
-            <span className="flex items-center gap-1">
-              <Zap className="h-2.5 w-2.5" />
-              Anúncios 100% gratuitos
-            </span>
-            {!isAdmin && (
-              <Link
-                to="/admin"
-                className="text-background/80 hover:text-background underline underline-offset-2 transition-colors"
-              >
-                Cadastre-se grátis
-              </Link>
-            )}
-          </div>
-        </div>
-      </div>
+      <nav className="navbar-bg">
+        <div className="container mx-auto px-4 md:px-6 h-16 flex items-center gap-6">
 
-      {/* ── Main navbar ────────────────────────────────────────────────────── */}
-      <nav className="bg-primary text-primary-foreground shadow-lg border-b border-primary-foreground/10">
-        <div className="container mx-auto px-4 h-14 flex items-center gap-3">
-
-          {/* Logo */}
+          {/* ── Logo ─────────────────────────────────────────────────────── */}
           <Link
             to="/"
-            className="flex items-center gap-2.5 shrink-0 hover:opacity-90 transition-opacity"
             onClick={() => setMobileOpen(false)}
+            className="flex items-center gap-2.5 shrink-0 group"
           >
-            <div className="bg-gold rounded-lg p-1.5 shadow-sm">
-              <Zap className="h-5 w-5 text-gold-foreground" />
+            <div className="w-9 h-9 bg-gold rounded-xl flex items-center justify-center shadow-md group-hover:shadow-gold/40 transition-shadow">
+              <Zap className="h-5 w-5 text-gold-foreground" strokeWidth={2.5} />
             </div>
-            <div className="leading-none">
-              <div className="flex items-center gap-1.5">
-                <span className="font-bold text-lg">{APP_NAME}</span>
-                <span className="text-[9px] font-bold bg-gold/25 text-gold border border-gold/40 rounded px-1.5 py-0.5 tracking-wider">
-                  GO
-                </span>
-              </div>
-              <div className="text-[10px] text-primary-foreground/50 mt-0.5">
-                Goiás · Compra e venda
-              </div>
+            <div className="flex items-baseline gap-2">
+              <span className="font-bold text-[1.15rem] text-primary-foreground tracking-tight">
+                {APP_NAME}
+              </span>
+              <span className="text-[9px] font-bold tracking-widest text-gold border border-gold/40 rounded-md px-1.5 py-[2px] leading-none">
+                GO
+              </span>
             </div>
           </Link>
 
-          {/* Spacer */}
+          {/* ── Desktop nav links ─────────────────────────────────────────── */}
+          <div className="hidden md:flex items-center gap-0.5 ml-2">
+            <NavLink to="/" active={at('/')}>Anúncios</NavLink>
+            {isAdmin && (
+              <NavLink to="/admin/dashboard" active={at('/admin/dashboard')}>
+                Painel
+              </NavLink>
+            )}
+          </div>
+
           <div className="flex-1" />
 
-          {/* ── Desktop nav ─────────────────────────────────────────────── */}
-          <div className="hidden md:flex items-center gap-1">
+          {/* ── Desktop right actions ────────────────────────────────────── */}
+          <div className="hidden md:flex items-center gap-2">
             {isAdmin ? (
               <>
-                {/* Divider group: navigation */}
-                <div className="flex items-center gap-1 pr-3 border-r border-primary-foreground/15">
-                  <NavLink to="/" active={isActive('/')}>
-                    Anúncios
-                  </NavLink>
-                </div>
+                {/* Messages */}
+                <Link
+                  to="/admin/dashboard"
+                  title="Mensagens"
+                  className="relative w-9 h-9 flex items-center justify-center rounded-lg text-primary-foreground/60 hover:text-primary-foreground hover:bg-white/8 transition-all"
+                >
+                  <MessageSquare className="h-[18px] w-[18px]" />
+                  {msgCount > 0 && (
+                    <span className="absolute top-1 right-1 min-w-[16px] h-4 bg-gold text-gold-foreground rounded-full text-[9px] font-bold flex items-center justify-center px-0.5 leading-none">
+                      {msgCount > 9 ? '9+' : msgCount}
+                    </span>
+                  )}
+                </Link>
 
-                {/* Divider group: listings actions */}
-                <div className="flex items-center gap-1 px-3 border-r border-primary-foreground/15">
-                  <NavLink to="/admin/dashboard" active={isActive('/admin/dashboard')}>
-                    <LayoutDashboard className="h-3.5 w-3.5" />
-                    Meus Anúncios
-                  </NavLink>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    asChild
-                    className="text-gold hover:bg-primary-foreground/10 hover:text-gold font-semibold h-8 px-2.5 gap-1"
-                  >
-                    <Link to="/admin/adicionar">
-                      <PlusCircle className="h-3.5 w-3.5" />
-                      Anunciar
-                    </Link>
-                  </Button>
-                </div>
-
-                {/* Divider group: notifications + account */}
-                <div className="flex items-center gap-1.5 pl-3">
-                  {/* Messages badge */}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    asChild
-                    className="relative h-8 w-8 p-0 hover:bg-primary-foreground/10 text-primary-foreground/70 hover:text-primary-foreground"
-                    title={`${msgCount} mensagens`}
-                  >
-                    <Link to="/admin/dashboard">
-                      <MessageSquare className="h-4 w-4" />
-                      {msgCount > 0 && (
-                        <span className="absolute -top-0.5 -right-0.5 min-w-[14px] h-3.5 bg-destructive text-destructive-foreground rounded-full text-[9px] font-bold flex items-center justify-center px-0.5">
-                          {msgCount > 9 ? '9+' : msgCount}
-                        </span>
-                      )}
-                    </Link>
-                  </Button>
-
-                  {/* User dropdown */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 px-2 gap-1.5 hover:bg-primary-foreground/10 text-primary-foreground"
-                      >
-                        <div className="w-6 h-6 rounded-full bg-gold text-gold-foreground flex items-center justify-center text-[11px] font-bold shadow-sm">
+                {/* User dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-2 px-2.5 h-9 rounded-lg hover:bg-white/8 transition-colors group outline-none">
+                      <div className="w-7 h-7 rounded-full bg-gold text-gold-foreground flex items-center justify-center text-xs font-bold shadow-sm">
+                        {userInitial}
+                      </div>
+                      <ChevronDown className="h-3.5 w-3.5 text-primary-foreground/50 group-hover:text-primary-foreground/80 transition-colors" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 mt-2 p-1.5">
+                    <DropdownMenuLabel className="px-2 py-2 mb-1">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold shrink-0">
                           {userInitial}
                         </div>
-                        <ChevronDown className="h-3 w-3 opacity-60" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-52 mt-1">
-                      <DropdownMenuLabel className="py-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold shrink-0">
-                            {userInitial}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="text-xs font-semibold text-foreground truncate">
-                              Minha conta
-                            </div>
-                            <div className="text-[10px] text-muted-foreground truncate">
-                              {user?.email}
-                            </div>
-                          </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-foreground">Minha conta</p>
+                          <p className="text-[11px] text-muted-foreground truncate">{user?.email}</p>
                         </div>
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link to="/admin/dashboard" className="cursor-pointer">
-                          <LayoutDashboard className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
-                          Meus Anúncios
-                          {msgCount > 0 && (
-                            <Badge className="ml-auto text-[10px] h-4 px-1.5 bg-destructive text-destructive-foreground">
-                              {msgCount}
-                            </Badge>
-                          )}
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to="/admin/adicionar" className="cursor-pointer">
-                          <PlusCircle className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
-                          Novo Anúncio
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={handleSignOut}
-                        className="text-destructive focus:text-destructive cursor-pointer"
-                      >
-                        <LogOut className="h-3.5 w-3.5 mr-2" />
-                        Sair da conta
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator className="my-1" />
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/dashboard" className="cursor-pointer gap-2.5 py-2">
+                        <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
+                        <span>Meus Anúncios</span>
+                        {msgCount > 0 && (
+                          <Badge className="ml-auto text-[10px] h-4 px-1.5 bg-gold text-gold-foreground">
+                            {msgCount}
+                          </Badge>
+                        )}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/adicionar" className="cursor-pointer gap-2.5 py-2">
+                        <PlusCircle className="h-4 w-4 text-muted-foreground" />
+                        Novo Anúncio
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="my-1" />
+                    <DropdownMenuItem
+                      onClick={handleSignOut}
+                      className="cursor-pointer gap-2.5 py-2 text-destructive focus:text-destructive"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sair da conta
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Anunciar CTA */}
+                <Button
+                  size="sm"
+                  asChild
+                  className="bg-gold hover:bg-gold/90 text-gold-foreground font-semibold gap-1.5 h-9 px-4 shadow-md hover:shadow-gold/30 transition-all"
+                >
+                  <Link to="/admin/adicionar">
+                    <PlusCircle className="h-3.5 w-3.5" />
+                    Anunciar
+                  </Link>
+                </Button>
               </>
             ) : (
-              <div className="flex items-center gap-2">
-                <NavLink to="/" active={isActive('/')}>
-                  Anúncios
-                </NavLink>
-                <div className="w-px h-5 bg-primary-foreground/15 mx-1" />
+              <>
                 <Button
                   variant="ghost"
                   size="sm"
                   asChild
-                  className="text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10 h-8"
+                  className="text-primary-foreground/70 hover:text-primary-foreground hover:bg-white/8 h-9"
                 >
                   <Link to="/admin">Entrar</Link>
                 </Button>
                 <Button
                   size="sm"
                   asChild
-                  className="bg-gold text-gold-foreground hover:bg-gold/90 font-semibold gap-1.5 h-8"
+                  className="bg-gold hover:bg-gold/90 text-gold-foreground font-semibold gap-1.5 h-9 px-4 shadow-md hover:shadow-gold/30 transition-all"
                 >
                   <Link to="/admin">
                     <PlusCircle className="h-3.5 w-3.5" />
                     Anunciar Grátis
                   </Link>
                 </Button>
-              </div>
+              </>
             )}
           </div>
 
-          {/* ── Mobile: hamburger ──────────────────────────────────────── */}
-          <div className="md:hidden flex items-center gap-2">
+          {/* ── Mobile right ─────────────────────────────────────────────── */}
+          <div className="md:hidden flex items-center gap-1.5 ml-auto">
             {isAdmin && msgCount > 0 && (
-              <Link to="/admin/dashboard" className="relative">
-                <Bell className="h-5 w-5 text-primary-foreground/70" />
-                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-destructive rounded-full text-[9px] font-bold flex items-center justify-center text-white">
+              <Link
+                to="/admin/dashboard"
+                className="relative w-9 h-9 flex items-center justify-center rounded-lg text-primary-foreground/70"
+              >
+                <MessageSquare className="h-5 w-5" />
+                <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-gold text-gold-foreground rounded-full text-[9px] font-bold flex items-center justify-center">
                   {msgCount > 9 ? '9+' : msgCount}
                 </span>
               </Link>
             )}
             <button
               onClick={() => setMobileOpen((v) => !v)}
-              className="p-1.5 text-primary-foreground/80 hover:text-primary-foreground"
+              className="w-9 h-9 flex items-center justify-center rounded-lg text-primary-foreground/80 hover:text-primary-foreground hover:bg-white/8 transition-colors"
               aria-label="Menu"
             >
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -281,69 +226,66 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* ── Mobile menu ─────────────────────────────────────────────────── */}
+        {/* ── Mobile drawer ───────────────────────────────────────────────── */}
         {mobileOpen && (
-          <div className="md:hidden border-t border-primary-foreground/15 bg-primary">
-            <div className="container mx-auto px-4 py-3 space-y-1">
-              {/* Goiás identity on mobile */}
-              <div className="flex items-center gap-1.5 text-xs text-primary-foreground/50 pb-2 border-b border-primary-foreground/10">
+          <div className="md:hidden border-t border-white/10">
+            <div className="container mx-auto px-4 pt-3 pb-4 space-y-1">
+
+              {/* Location pill */}
+              <div className="flex items-center gap-1.5 text-[11px] text-primary-foreground/40 pb-3">
                 <MapPin className="h-3 w-3" />
-                GiroCar · Marketplace de carros em Goiás
+                <span>Goiás, Brasil · Anúncios 100% gratuitos</span>
               </div>
 
-              <MobileLink to="/" onClick={() => setMobileOpen(false)}>
+              {/* Nav */}
+              <MobileItem to="/" onClick={() => setMobileOpen(false)}>
                 Anúncios
-              </MobileLink>
+              </MobileItem>
 
               {isAdmin ? (
                 <>
-                  <div className="pt-2 border-t border-primary-foreground/10">
-                    <div className="text-[10px] text-primary-foreground/40 uppercase tracking-wide px-2 mb-1">
-                      Meus Anúncios
-                    </div>
-                    <MobileLink to="/admin/dashboard" onClick={() => setMobileOpen(false)}>
-                      <LayoutDashboard className="h-4 w-4 mr-2" />
+                  <div className="pt-3 pb-1">
+                    <p className="text-[10px] text-primary-foreground/35 uppercase tracking-widest font-semibold px-3 mb-2">
+                      Conta
+                    </p>
+                    <MobileItem to="/admin/dashboard" onClick={() => setMobileOpen(false)}>
+                      <LayoutDashboard className="h-4 w-4 opacity-70" />
                       Painel
                       {msgCount > 0 && (
-                        <span className="ml-auto text-[10px] bg-destructive text-destructive-foreground rounded-full px-1.5 py-0.5 font-bold">
-                          {msgCount} msg
+                        <span className="ml-auto text-[10px] bg-gold text-gold-foreground rounded-full px-1.5 py-0.5 font-bold leading-none">
+                          {msgCount}
                         </span>
                       )}
-                    </MobileLink>
-                    <MobileLink to="/admin/adicionar" onClick={() => setMobileOpen(false)}>
-                      <PlusCircle className="h-4 w-4 mr-2 text-gold" />
-                      <span className="text-gold font-semibold">Novo Anúncio</span>
-                    </MobileLink>
-                  </div>
+                    </MobileItem>
+                    <MobileItem to="/admin/adicionar" onClick={() => setMobileOpen(false)}>
+                      <PlusCircle className="h-4 w-4 text-gold" />
+                      <span className="font-semibold">Novo Anúncio</span>
+                    </MobileItem>
 
-                  <div className="pt-2 border-t border-primary-foreground/10">
-                    <div className="text-[10px] text-primary-foreground/40 uppercase tracking-wide px-2 mb-1">
-                      Conta
-                    </div>
-                    <div className="flex items-center gap-2 px-2 py-1.5 text-sm text-primary-foreground/60">
-                      <div className="w-6 h-6 rounded-full bg-gold text-gold-foreground flex items-center justify-center text-[10px] font-bold">
+                    <div className="flex items-center gap-2.5 px-3 py-2.5 mt-1 rounded-xl bg-white/5">
+                      <div className="w-7 h-7 rounded-full bg-gold text-gold-foreground flex items-center justify-center text-xs font-bold shrink-0">
                         {userInitial}
                       </div>
-                      <span className="truncate text-primary-foreground/70">{user?.email}</span>
+                      <span className="text-sm text-primary-foreground/70 truncate flex-1">{user?.email}</span>
+                      <button
+                        onClick={handleSignOut}
+                        className="text-primary-foreground/40 hover:text-destructive transition-colors"
+                        title="Sair"
+                      >
+                        <LogOut className="h-4 w-4" />
+                      </button>
                     </div>
-                    <button
-                      onClick={handleSignOut}
-                      className="flex items-center gap-2 px-2 py-2 text-sm text-destructive w-full rounded-md hover:bg-primary-foreground/5 transition-colors"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      Sair da conta
-                    </button>
                   </div>
                 </>
               ) : (
-                <div className="pt-2 border-t border-primary-foreground/10 space-y-1.5">
-                  <MobileLink to="/admin" onClick={() => setMobileOpen(false)}>
+                <div className="pt-3 space-y-2">
+                  <MobileItem to="/admin" onClick={() => setMobileOpen(false)}>
                     Entrar na conta
-                  </MobileLink>
+                  </MobileItem>
                   <Link
                     to="/admin"
                     onClick={() => setMobileOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2.5 rounded-md bg-gold text-gold-foreground font-semibold text-sm"
+                    className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gold text-gold-foreground font-semibold text-sm"
                   >
                     <PlusCircle className="h-4 w-4" />
                     Anunciar Grátis
@@ -358,47 +300,32 @@ export default function Navbar() {
   );
 }
 
-// ── helpers ──────────────────────────────────────────────────────────────────
+/* ── helpers ─────────────────────────────────────────────────────────────── */
 
-function NavLink({
-  to,
-  active,
-  children,
-}: {
-  to: string;
-  active?: boolean;
-  children: React.ReactNode;
-}) {
+function NavLink({ to, active, children }: { to: string; active?: boolean; children: React.ReactNode }) {
   return (
-    <Button
-      variant="ghost"
-      size="sm"
-      asChild
-      className={`h-8 px-3 gap-1.5 text-sm transition-all ${
+    <Link
+      to={to}
+      className={`relative px-3 h-9 flex items-center text-sm font-medium rounded-lg transition-all gap-1.5 ${
         active
-          ? 'bg-primary-foreground/15 text-primary-foreground font-semibold'
-          : 'text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10'
+          ? 'bg-white/12 text-primary-foreground'
+          : 'text-primary-foreground/60 hover:text-primary-foreground hover:bg-white/8'
       }`}
     >
-      <Link to={to}>{children}</Link>
-    </Button>
+      {children}
+      {active && (
+        <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-gold rounded-full" />
+      )}
+    </Link>
   );
 }
 
-function MobileLink({
-  to,
-  onClick,
-  children,
-}: {
-  to: string;
-  onClick?: () => void;
-  children: React.ReactNode;
-}) {
+function MobileItem({ to, onClick, children }: { to: string; onClick?: () => void; children: React.ReactNode }) {
   return (
     <Link
       to={to}
       onClick={onClick}
-      className="flex items-center gap-2 px-2 py-2.5 text-sm text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/5 rounded-md transition-colors"
+      className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-primary-foreground/75 hover:text-primary-foreground hover:bg-white/8 transition-colors"
     >
       {children}
     </Link>

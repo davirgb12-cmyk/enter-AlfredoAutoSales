@@ -367,8 +367,11 @@ export default function AdminDashboard() {
                       <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{msg.content}</p>
                     </div>
                     {car && (
-                      <Button asChild variant="outline" size="sm" className="flex-shrink-0 h-8">
-                        <Link to={`/carro/${car.id}`}>Responder</Link>
+                      <Button asChild variant="outline" size="sm" className="flex-shrink-0 h-8 gap-1.5 text-primary border-primary/30 hover:bg-primary/5">
+                        <Link to={`/chat/${msg.car_id}`}>
+                          <MessageCircle className="h-3.5 w-3.5" />
+                          Responder
+                        </Link>
                       </Button>
                     )}
                   </div>

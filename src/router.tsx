@@ -1,5 +1,6 @@
 import Index from "./pages/Index";
 import CarDetail from "./pages/CarDetail";
+import ChatPage from "./pages/ChatPage";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminCarForm from "./pages/AdminCarForm";
@@ -16,6 +17,11 @@ export const routers = [
     path: "/carro/:id",
     name: "car-detail",
     element: <CarDetail />,
+  },
+  {
+    path: "/chat/:carId",
+    name: "chat",
+    element: <ChatPage />,
   },
   {
     path: "/admin",

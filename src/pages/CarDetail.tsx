@@ -7,7 +7,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import FipeBadge from '@/components/FipeBadge';
-import ChatPanel from '@/components/ChatPanel';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -25,6 +24,7 @@ import {
   ChevronRight,
   MapPin,
   User,
+  MessageSquare,
 } from 'lucide-react';
 
 export default function CarDetail() {
@@ -297,8 +297,20 @@ export default function CarDetail() {
               </div>
             )}
 
-            {/* Chat with seller */}
-            <ChatPanel car={car} />
+            {/* Chat CTA */}
+            {car.status === 'available' && (
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="w-full gap-2 h-12 border-primary/30 text-primary hover:bg-primary/5"
+              >
+                <Link to={`/chat/${car.id}`}>
+                  <MessageSquare className="h-5 w-5" />
+                  Chat com o vendedor
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
       </div>

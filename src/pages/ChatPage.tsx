@@ -30,7 +30,7 @@ interface Message {
   created_at: string;
 }
 
-const BUYER_NAME_KEY = 'girocar_buyer_name';
+const BUYER_NAME_KEY = 'levemotors_buyer_name';
 
 export default function ChatPage() {
   const { carId } = useParams<{ carId: string }>();
@@ -229,7 +229,7 @@ export default function ChatPage() {
           {car.status === 'available' && getWhatsAppNumber(car.seller_phone) && (
             <a
               href={`https://wa.me/${getWhatsAppNumber(car.seller_phone)}?text=${encodeURIComponent(
-                `Olá ${car.seller_name || ''}! Vi seu anúncio do ${car.title} no GiroCar. Ainda está disponível?`
+                `Olá ${car.seller_name || ''}! Vi seu anúncio do ${car.title} no LeveMotors. Ainda está disponível?`
               )}`}
               target="_blank"
               rel="noopener noreferrer"

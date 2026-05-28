@@ -73,7 +73,7 @@ export default function CarDetail() {
   const images = car.images?.length ? car.images : [];
   const whatsappNumber = getWhatsAppNumber(car.seller_phone);
   const whatsappMsg = encodeURIComponent(
-    `Olá ${car.seller_name || ''}! Vi seu anúncio do ${car.title} (${formatCurrency(car.selling_price)}) no GiroCar. Ainda está disponível?`
+    `Olá ${car.seller_name || ''}! Vi seu anúncio do ${car.title} (${formatCurrency(car.selling_price)}) no LeveMotors. Ainda está disponível?`
   );
   const whatsappLink = whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${whatsappMsg}` : null;
   const phoneLink = whatsappNumber ? `tel:+${whatsappNumber}` : null;

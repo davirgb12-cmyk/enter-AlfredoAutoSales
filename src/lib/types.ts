@@ -36,7 +36,7 @@ export const STATES = [
   'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO',
 ];
 
-export const APP_NAME = 'GiroCar';
+export const APP_NAME = 'LeveMotors';
 export const APP_TAGLINE = 'Compre e venda carros em Goiás';
 export const APP_STATE = 'GO';
 export const APP_STATE_LABEL = 'Goiás';
@@ -61,7 +61,7 @@ export function formatKm(value: number): string {
 }
 
 // Seller profile saved in localStorage between sessions
-export const SELLER_PROFILE_KEY = 'girocar_seller_profile';
+export const SELLER_PROFILE_KEY = 'levemotors_seller_profile';
 
 export interface SellerProfile {
   seller_name: string;

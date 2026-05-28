@@ -1,70 +1,37 @@
 import { Link } from 'react-router-dom';
-import { Zap, PlusCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { APP_NAME, APP_TAGLINE, APP_STATE_LABEL } from '@/lib/types';
+import { Zap } from 'lucide-react';
+import { APP_NAME, APP_STATE_LABEL } from '@/lib/types';
 
 export default function Footer() {
   return (
     <footer className="bg-primary text-primary-foreground mt-16">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid md:grid-cols-3 gap-10">
+      <div className="container mx-auto px-4 md:px-6 py-10">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="bg-gold rounded-lg p-1.5">
-                <Zap className="h-4 w-4 text-gold-foreground" />
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-7 h-7 bg-gold rounded-lg flex items-center justify-center">
+                <Zap className="h-4 w-4 text-gold-foreground" strokeWidth={2.5} />
               </div>
-              <h3 className="text-xl font-bold">{APP_NAME}</h3>
+              <span className="font-bold text-lg">{APP_NAME}</span>
+              <span className="text-[9px] font-bold border border-gold/40 text-gold rounded-md px-1.5 py-[2px] tracking-wider">GO</span>
             </div>
-            <p className="text-primary-foreground/60 text-sm max-w-xs">
-              {APP_TAGLINE}. Anuncie seu carro gratuitamente e alcance compradores em todo o {APP_STATE_LABEL}.
+            <p className="text-sm text-primary-foreground/50 max-w-xs">
+              Marketplace de carros em {APP_STATE_LABEL}. Anúncios 100% gratuitos.
             </p>
           </div>
 
           {/* Links */}
-          <div>
-            <h4 className="font-semibold mb-3 text-sm uppercase tracking-wide text-primary-foreground/70">
-              Vendedores
-            </h4>
-            <ul className="space-y-2 text-sm text-primary-foreground/60">
-              <li>
-                <Link to="/admin" className="hover:text-primary-foreground transition-colors">
-                  Criar conta grátis
-                </Link>
-              </li>
-              <li>
-                <Link to="/admin" className="hover:text-primary-foreground transition-colors">
-                  Entrar na minha conta
-                </Link>
-              </li>
-              <li>
-                <Link to="/admin/adicionar" className="hover:text-primary-foreground transition-colors">
-                  Anunciar carro
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* CTA */}
-          <div className="flex flex-col items-start md:items-end justify-start md:justify-center">
-            <p className="text-sm text-primary-foreground/60 mb-3">
-              Tem um carro para vender?
-            </p>
-            <Button
-              asChild
-              size="lg"
-              className="bg-gold hover:bg-gold/90 text-gold-foreground gap-2 font-semibold shadow-lg"
-            >
-              <Link to="/admin">
-                <PlusCircle className="h-5 w-5" />
-                Anunciar Grátis
-              </Link>
-            </Button>
-          </div>
+          <nav className="flex flex-col sm:flex-row gap-4 sm:gap-8 text-sm text-primary-foreground/50">
+            <Link to="/" className="hover:text-primary-foreground transition-colors">Ver anúncios</Link>
+            <Link to="/admin" className="hover:text-primary-foreground transition-colors">Entrar</Link>
+            <Link to="/admin" className="hover:text-primary-foreground transition-colors">Anunciar grátis</Link>
+          </nav>
         </div>
 
-        <div className="border-t border-primary-foreground/15 mt-10 pt-5 text-center text-xs text-primary-foreground/40">
-          © {new Date().getFullYear()} {APP_NAME} · {APP_TAGLINE}
+        <div className="border-t border-primary-foreground/10 mt-8 pt-5 text-[11px] text-primary-foreground/30 text-center">
+          © {new Date().getFullYear()} {APP_NAME} · Goiás, Brasil
         </div>
       </div>
     </footer>

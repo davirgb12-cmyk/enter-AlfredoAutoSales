@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Search, Car as CarIcon, PlusCircle, Zap, MapPin } from 'lucide-react';
+import { Search, Car as CarIcon, PlusCircle, MapPin, SlidersHorizontal } from 'lucide-react';
 
 export default function Index() {
   const [search, setSearch] = useState('');
@@ -52,8 +52,7 @@ export default function Index() {
       return matchesSearch && matchesFuel;
     })
     .sort((a, b) => {
-      if (sortBy === 'newest')
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      if (sortBy === 'newest') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       if (sortBy === 'price-asc') return a.selling_price - b.selling_price;
       if (sortBy === 'price-desc') return b.selling_price - a.selling_price;
       if (sortBy === 'km-asc') return a.km - b.km;
@@ -67,78 +66,101 @@ export default function Index() {
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
 
-      {/* Hero */}
-      <section className="hero-gradient text-primary-foreground py-16 md:py-24 px-4">
-        <div className="container mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-primary-foreground/10 border border-primary-foreground/20 rounded-full px-4 py-1.5 text-sm mb-6">
-            <MapPin className="h-3.5 w-3.5 text-gold" />
-            <span className="text-primary-foreground/80">
-              Marketplace exclusivo para <span className="font-semibold text-primary-foreground">Goiás</span>
-            </span>
+      {/* ── Hero ───────────────────────────────────────────────────────── */}
+      <section className="hero-gradient text-primary-foreground">
+        <div className="container mx-auto px-4 md:px-6 py-16 md:py-24">
+
+          {/* Location pill */}
+          <div className="inline-flex items-center gap-1.5 bg-white/10 border border-white/15 rounded-full px-3 py-1 text-xs font-medium text-white/70 mb-6">
+            <MapPin className="h-3 w-3 text-gold" />
+            Exclusivo para <span className="text-white font-semibold ml-0.5">{APP_STATE_LABEL}</span>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
-            {APP_NAME}
+
+          {/* Heading */}
+          <h1 className="text-4xl md:text-[3.25rem] lg:text-[3.75rem] font-extrabold leading-[1.1] tracking-tight mb-4 max-w-2xl">
+            Compre e venda<br />
+            <span className="text-gold">carros em Goiás</span>
           </h1>
-          <p className="text-primary-foreground/70 text-lg mb-10 max-w-lg mx-auto">
-            {APP_TAGLINE}. Encontre o carro ideal ou anuncie o seu.
+          <p className="text-white/60 text-base md:text-lg mb-10 max-w-md leading-relaxed">
+            {cars.length > 0
+              ? `${cars.length} veículos disponíveis. Anuncie grátis e venda mais rápido.`
+              : `${APP_TAGLINE}. Anuncie o seu grátis.`}
           </p>
 
-          <div className="max-w-xl mx-auto flex gap-2">
+          {/* Search bar */}
+          <div className="max-w-2xl bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-2 flex gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
               <Input
-                placeholder="Buscar marca, modelo, cidade..."
-                className="pl-9 bg-card text-card-foreground border-border h-12 rounded-xl shadow-lg"
+                placeholder="Marca, modelo, cidade..."
+                className="pl-10 bg-white/0 border-0 text-white placeholder:text-white/40 h-11 focus-visible:ring-0 focus-visible:ring-offset-0 text-base"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
             <Button
-              asChild
               size="lg"
-              className="bg-gold hover:bg-gold/90 text-gold-foreground h-12 px-5 shadow-lg gap-2 font-semibold"
+              className="bg-gold hover:bg-gold/90 text-gold-foreground h-11 px-6 font-semibold text-sm rounded-xl shrink-0 shadow-none"
+              onClick={() => {}}
             >
-              <Link to="/admin">
-                <PlusCircle className="h-4 w-4" />
-                <span className="hidden sm:inline">Anunciar</span>
-              </Link>
+              <Search className="h-4 w-4 mr-2" />
+              Buscar
             </Button>
           </div>
 
+          {/* Stats */}
           {cars.length > 0 && (
-            <div className="flex items-center justify-center gap-6 md:gap-10 mt-10 text-sm text-primary-foreground/60 flex-wrap">
-              <div>
-                <span className="text-2xl font-bold text-primary-foreground">{cars.length}</span>
-                <span className="ml-1">anúncios em {APP_STATE_LABEL}</span>
-              </div>
-              <div className="w-px h-6 bg-primary-foreground/20 hidden sm:block" />
-              <div>
-                <span className="text-sm">De </span>
-                <span className="font-semibold text-gold">{formatCurrency(minPrice)}</span>
-                <span className="text-sm"> até </span>
-                <span className="font-semibold text-gold">{formatCurrency(maxPrice)}</span>
-              </div>
+            <div className="flex items-center gap-6 mt-8 text-sm text-white/50 flex-wrap">
+              <span>
+                <strong className="text-white font-bold">{cars.length}</strong>{' '}
+                anúncios em {APP_STATE_LABEL}
+              </span>
+              <span className="text-white/20">·</span>
+              <span>
+                De{' '}
+                <strong className="text-gold font-semibold">{formatCurrency(minPrice)}</strong>
+                {' '}até{' '}
+                <strong className="text-gold font-semibold">{formatCurrency(maxPrice)}</strong>
+              </span>
+              <span className="text-white/20">·</span>
+              <Link
+                to="/admin"
+                className="text-white/70 hover:text-gold underline underline-offset-4 transition-colors flex items-center gap-1"
+              >
+                <PlusCircle className="h-3.5 w-3.5" />
+                Anunciar grátis
+              </Link>
             </div>
           )}
         </div>
       </section>
 
-      {/* Listings */}
-      <section className="container mx-auto px-4 py-10 flex-1">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-          <h2 className="text-xl font-bold text-foreground">
-            {isLoading
-              ? 'Carregando...'
-              : `${filtered.length} anúncio${filtered.length !== 1 ? 's' : ''}`}
-          </h2>
-          <div className="flex gap-2 flex-wrap">
-            {fuels.length > 0 && (
+      {/* ── Listings ───────────────────────────────────────────────────── */}
+      <section className="container mx-auto px-4 md:px-6 py-10 flex-1">
+
+        {/* Controls */}
+        <div className="flex items-center justify-between gap-3 mb-7 flex-wrap">
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium text-foreground">
+              {isLoading ? 'Carregando...' : (
+                <>
+                  <strong>{filtered.length}</strong>{' '}
+                  {filtered.length === 1 ? 'anúncio' : 'anúncios'}
+                  {search && <span className="text-muted-foreground font-normal"> para "{search}"</span>}
+                </>
+              )}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {fuels.length > 1 && (
               <Select value={fuelFilter} onValueChange={setFuelFilter}>
-                <SelectTrigger className="w-32 h-9 text-sm bg-card">
+                <SelectTrigger className="h-8 text-xs w-32 bg-card border-border">
                   <SelectValue placeholder="Combustível" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Combustível</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   {fuels.map((f) => (
                     <SelectItem key={f} value={f}>{f}</SelectItem>
                   ))}
@@ -146,7 +168,7 @@ export default function Index() {
               </Select>
             )}
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-44 h-9 text-sm bg-card">
+              <SelectTrigger className="h-8 text-xs w-40 bg-card border-border">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -159,28 +181,41 @@ export default function Index() {
           </div>
         </div>
 
+        {/* Grid */}
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="rounded-xl bg-card animate-pulse h-80 shadow-card" />
+              <div key={i} className="rounded-xl bg-card animate-pulse h-[320px] border border-border" />
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
-            <CarIcon className="h-20 w-20 mb-5 opacity-10" />
-            <p className="text-xl font-semibold text-foreground">Nenhum anúncio encontrado</p>
-            <p className="text-sm mt-2 mb-6">
-              {search ? 'Tente outro termo de busca' : 'Seja o primeiro a anunciar!'}
+          <div className="flex flex-col items-center justify-center py-28 text-center">
+            <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center mb-5">
+              <CarIcon className="h-10 w-10 text-muted-foreground/30" />
+            </div>
+            <h3 className="text-lg font-semibold text-foreground mb-2">
+              {search ? 'Nenhum resultado encontrado' : 'Nenhum anúncio ainda'}
+            </h3>
+            <p className="text-sm text-muted-foreground mb-7 max-w-xs">
+              {search
+                ? `Não encontramos veículos para "${search}". Tente outro termo.`
+                : 'Seja o primeiro a anunciar um carro em Goiás!'}
             </p>
-            <Button asChild className="bg-gold hover:bg-gold/90 text-gold-foreground gap-2 font-semibold">
-              <Link to="/admin">
-                <PlusCircle className="h-4 w-4" />
-                Anunciar Grátis
-              </Link>
-            </Button>
+            {search ? (
+              <Button variant="outline" onClick={() => setSearch('')}>
+                Limpar busca
+              </Button>
+            ) : (
+              <Button asChild className="bg-gold hover:bg-gold/90 text-gold-foreground gap-2 font-semibold">
+                <Link to="/admin">
+                  <PlusCircle className="h-4 w-4" />
+                  Anunciar Grátis
+                </Link>
+              </Button>
+            )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 animate-fade-in">
             {filtered.map((car) => (
               <CarCard key={car.id} car={car} />
             ))}

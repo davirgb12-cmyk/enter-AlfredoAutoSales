@@ -1,78 +1,80 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 210 20% 97%;
-    --foreground: 220 40% 10%;
+    --background: 220 20% 96%;
+    --foreground: 222 35% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 40% 10%;
+    --card-foreground: 222 35% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 40% 10%;
+    --popover-foreground: 222 35% 10%;
 
-    --primary: 220 65% 20%;
+    --primary: 222 68% 18%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 20% 93%;
-    --secondary-foreground: 220 40% 10%;
+    --secondary: 220 16% 92%;
+    --secondary-foreground: 222 35% 10%;
 
-    --muted: 210 20% 93%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 220 16% 92%;
+    --muted-foreground: 222 12% 50%;
 
-    --accent: 210 20% 93%;
-    --accent-foreground: 220 40% 10%;
+    --accent: 220 16% 92%;
+    --accent-foreground: 222 35% 10%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 214 28% 88%;
-    --input: 214 28% 88%;
-    --ring: 220 65% 22%;
+    --border: 220 20% 88%;
+    --input: 0 0% 100%;
+    --ring: 222 68% 18%;
 
-    --radius: 0.75rem;
+    --radius: 0.625rem;
 
     --gold: 38 92% 50%;
-    --gold-foreground: 220 40% 10%;
+    --gold-foreground: 222 35% 10%;
 
     --success: 142 72% 29%;
     --success-foreground: 0 0% 100%;
 
-    --sidebar-background: 220 65% 18%;
+    --sidebar-background: 222 68% 16%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 38 90% 52%;
-    --sidebar-primary-foreground: 220 40% 10%;
-    --sidebar-accent: 220 55% 28%;
+    --sidebar-primary: 38 92% 50%;
+    --sidebar-primary-foreground: 222 35% 10%;
+    --sidebar-accent: 222 55% 26%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 220 55% 28%;
-    --sidebar-ring: 38 90% 52%;
+    --sidebar-border: 222 55% 26%;
+    --sidebar-ring: 38 92% 50%;
   }
 
   .dark {
-    --background: 220 40% 8%;
+    --background: 222 40% 8%;
     --foreground: 210 20% 96%;
-    --card: 220 40% 11%;
+    --card: 222 38% 11%;
     --card-foreground: 210 20% 96%;
-    --popover: 220 40% 11%;
+    --popover: 222 38% 11%;
     --popover-foreground: 210 20% 96%;
-    --primary: 220 65% 22%;
+    --primary: 222 68% 18%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 30% 18%;
+    --secondary: 222 28% 18%;
     --secondary-foreground: 210 20% 96%;
-    --muted: 220 30% 18%;
-    --muted-foreground: 215 20% 60%;
-    --accent: 220 30% 18%;
+    --muted: 222 28% 18%;
+    --muted-foreground: 215 18% 58%;
+    --accent: 222 28% 18%;
     --accent-foreground: 210 20% 96%;
     --destructive: 0 62% 38%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 30% 20%;
-    --input: 220 30% 20%;
-    --ring: 220 65% 40%;
-    --gold: 38 90% 52%;
-    --gold-foreground: 220 40% 10%;
+    --border: 222 28% 20%;
+    --input: 222 28% 20%;
+    --ring: 222 68% 40%;
+    --gold: 38 92% 50%;
+    --gold-foreground: 222 35% 10%;
   }
 }
 
@@ -80,24 +82,29 @@
   * {
     @apply border-border;
   }
+  html {
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  }
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
 @layer utilities {
   .hero-gradient {
-    background: linear-gradient(135deg, hsl(220, 72%, 10%) 0%, hsl(220, 60%, 22%) 100%);
+    background: linear-gradient(160deg, hsl(222, 72%, 10%) 0%, hsl(222, 62%, 20%) 100%);
   }
   .navbar-bg {
-    background: linear-gradient(180deg, hsl(220, 70%, 17%) 0%, hsl(220, 65%, 20%) 100%);
-    box-shadow: 0 1px 0 hsl(220 65% 30% / 0.6), 0 4px 24px -4px hsl(220 65% 10% / 0.4);
+    background: linear-gradient(180deg, hsl(222, 72%, 15%) 0%, hsl(222, 68%, 18%) 100%);
+    box-shadow: 0 1px 0 hsl(222 68% 28% / 0.5), 0 4px 20px -4px hsl(222 68% 8% / 0.35);
   }
   .shadow-card {
-    box-shadow: 0 4px 20px -4px hsl(220 65% 22% / 0.12);
+    box-shadow: 0 1px 4px hsl(222 30% 15% / 0.06), 0 2px 12px hsl(222 30% 15% / 0.06);
   }
   .shadow-hover {
-    box-shadow: 0 8px 30px -8px hsl(220 65% 22% / 0.25);
+    box-shadow: 0 4px 20px hsl(222 30% 15% / 0.12), 0 8px 40px hsl(222 30% 15% / 0.08);
   }
   .text-gold {
     color: hsl(var(--gold));

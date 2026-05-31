@@ -232,7 +232,9 @@ export default function AdminDashboard() {
                     <th className="text-center p-3 pr-4 font-medium text-muted-foreground">Ações</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody><amp-auto-ads type="adsense"
+        data-ad-client="ca-pub-2493617594224150">
+</amp-auto-ads>
                   {cars.map((car) => {
                     const profit = car.selling_price - car.cost_price;
                     const margin =

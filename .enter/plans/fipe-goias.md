@@ -1,86 +1,68 @@
-# Plano: Tabela FIPE + Goiás Only
+# Plan: Profile Picture + FIPE Price on Cards
 
-## Contexto
-- Usuário quer exibir preço FIPE e comparação ("preço popular" como OLX) em cards e na página do carro.
-- Usuário quer restringir o marketplace apenas a Goiás.
-
----
-
-## 1. Hook `useFipePrice` — `src/hooks/useFipePrice.ts` (NOVO)
-
-Usa a FIPE API pública (CORS habilitado): `https://parallelum.com.br/fipe/api/v2/cars`
-
-Fluxo:
-1. `GET /brands` → fuzzy-match com `car.brand`
-2. `GET /brands/{code}/models` → fuzzy-match com `car.model`
-3. `GET /brands/{code}/models/{code}/years` → match com `car.year`
-4. `GET /brands/{code}/models/{code}/years/{code}` → retorna `{ price: "R$ 14.870,00", ... }`
-
-Cache com React Query: `staleTime: 1h`, `retry: 1`.
-
-Helper `parseFipePrice(str)` → número float para comparação.
-Helper `fipeComparison(askingPrice, fipePrice)` → `{ diff, pct, label, color }`.
+## Context
+Two features requested:
+1. **Foto de perfil** — the navbar avatar is currently just a letter initial. The user wants to upload a real photo via the dropdown menu.
+2. **Preço FIPE nos cards** — the `FipeBadge compact` already exists at the bottom of each `CarCard` but is small and hidden. Move it directly below the selling price to make it prominent.
 
 ---
 
-## 2. Componente `FipeBadge` — `src/components/FipeBadge.tsx` (NOVO)
+## Feature 1 — Profile Picture
 
-Props: `brand`, `model`, `year`, `sellingPrice`, `compact?: boolean`
+### Storage Setup (Migration)
+- Create Supabase Storage bucket `avatars` (public)
+- Add RLS policy: authenticated users can insert/update `avatars/{user.id}/*`
 
-- **compact=true** (para CarCard): linha simples com ícone + "FIPE R$ X.XXX" + badge % acima/abaixo
-- **compact=false** (para CarDetail): bloco expandido com preço FIPE, preço pedido, diferença e texto explicativo
+### New Component: `AvatarUploadDialog.tsx`
+- A `Dialog` (shadcn) triggered by a menu item in the Navbar dropdown
+- Contains:
+  - Current avatar preview (circle with photo or initial)
+  - File input button (accepts `image/*`, max 2 MB)
+  - Upload flow: `supabase.storage.from('avatars').upload(path, file, { upsert: true })`
+  - After upload → call `supabase.auth.updateUser({ data: { avatar_url: publicUrl } })`
+  - Show loading state during upload
+  - Show success/error toast
 
-Estados: loading skeleton, error silencioso (não exibe nada se não encontrar).
-
----
-
-## 3. `src/components/CarCard.tsx` — adicionar `FipeBadge` compact
-
-Entre o preço e a grid de specs, inserir `<FipeBadge compact brand={car.brand} model={car.model} year={car.year} sellingPrice={car.selling_price} />`.
-
----
-
-## 4. `src/pages/CarDetail.tsx` — adicionar bloco FIPE completo
-
-Após specs grid, antes da descrição, inserir `<FipeBadge brand={car.brand} model={car.model} year={car.year} sellingPrice={car.selling_price} />`.
-
----
-
-## 5. Goiás Only
-
-### `src/lib/types.ts`
-- `APP_TAGLINE = 'Compre e venda carros em Goiás'`
-- `APP_STATE = 'GO'` (constante única)
-
-### `src/pages/AdminCarForm.tsx`
-- Remover `<Select>` de estado; mostrar campo fixo "Goiás (GO)" como texto
-- `seller_state` sempre `'GO'` no form default e no payload
-
-### `src/pages/Index.tsx`
-- Remover filtro de estado (`stateFilter`)
-- Filtrar query para `seller_state = 'GO'` (ou manter all já que só haverá GO)
-- Atualizar hero tagline
-
-### `src/components/Footer.tsx` + `Navbar.tsx`
-- Atualizar taglines para mencionar Goiás
+### Navbar changes (`src/components/Navbar.tsx`)
+- Read `user?.user_metadata?.avatar_url` for the avatar
+- If it exists → show `<img>` in the avatar circle (both in button trigger and dropdown label)
+- If not → fallback to the current letter initial
+- Add "Alterar foto de perfil" `DropdownMenuItem` that opens the `AvatarUploadDialog`
+- Import `Camera` icon from lucide-react for the menu item
 
 ---
 
-## Arquivos modificados
-- `src/hooks/useFipePrice.ts` — NOVO
-- `src/components/FipeBadge.tsx` — NOVO
-- `src/components/CarCard.tsx`
-- `src/pages/CarDetail.tsx`
-- `src/lib/types.ts`
-- `src/pages/AdminCarForm.tsx`
-- `src/pages/Index.tsx`
-- `src/components/Footer.tsx`
-- `src/components/Navbar.tsx`
+## Feature 2 — FIPE Price Prominently on Cards
+
+### `src/components/CarCard.tsx`
+- Move `<FipeBadge compact .../>` from the bottom of the card **to right below the selling price** (between price and specs row)
+- Remove the bottom border separator in compact mode since it's now mid-card
+
+### `src/components/FipeBadge.tsx` — compact mode update
+- When `compact`, instead of a full-width row at the bottom, render a compact inline row:
+  ```
+  TABELA FIPE  R$ XX.XXX    [badge: X% abaixo]
+  ```
+- Use smaller, muted text for the FIPE label, cleaner layout
 
 ---
 
-## Verificação
-1. Abrir qualquer card → deve aparecer "FIPE R$ X.XXX" abaixo do preço
-2. Abrir página do carro → bloco expandido com preço FIPE + % acima/abaixo
-3. Formulário de anúncio → estado fixo "Goiás (GO)", sem dropdown
-4. Hero e footer mencionam Goiás
+## Files to Modify
+- `src/components/Navbar.tsx` — avatar display + new menu item
+- `src/components/CarCard.tsx` — move FipeBadge position
+- `src/components/FipeBadge.tsx` — update compact mode styling
+
+## Files to Create
+- `src/components/AvatarUploadDialog.tsx` — upload dialog component
+
+## Migration Required
+- Create `avatars` storage bucket + RLS policies
+
+---
+
+## Verification
+1. Login → open navbar dropdown → "Alterar foto de perfil" appears
+2. Upload an image → avatar updates in navbar immediately
+3. Reload page → avatar persists (stored in user metadata)
+4. On home page listing → each card shows FIPE price clearly below the selling price
+5. Compact FIPE badge shows the comparison badge correctly

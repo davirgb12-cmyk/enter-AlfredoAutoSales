@@ -35,16 +35,18 @@ Two features requested:
 
 ## Feature 2 — Preço Popular nos Cards
 
-O "Preço Popular" já é calculado na página de detalhe (FipeBadge full mode) como a faixa FIPE ±12% — o preço que as pessoas normalmente praticam no mercado.
+O "Preço Popular" já é calculado na página de detalhe, mas usando FIPE ±12%. O usuário confirmou que na prática os carros são vendidos **abaixo** da FIPE.
 
-### `src/components/FipeBadge.tsx` — novo modo `card`
-- Adicionar prop `card?: boolean` ao FipeBadge
-- No modo `card`, exibir a faixa "Preço Popular" (popLow a popHigh = FIPE ±12%) abaixo do preço de venda
-- Layout:
+**Novo cálculo:** faixa de 80% a 95% da FIPE (5% a 20% abaixo), que representa o preço que as pessoas normalmente praticam no mercado.
+
+### `src/components/FipeBadge.tsx` — ajustes
+- Alterar `popLow = fipe.priceValue * 0.80` e `popHigh = fipe.priceValue * 0.95`
+- Adicionar prop `card?: boolean`
+- No modo `card`, exibir somente a faixa "Preço Popular":
   ```
-  Preço popular: R$ 35.000 – R$ 45.000
+  Preço popular: R$ 35.000 – R$ 42.000
   ```
-- Texto pequeno e muted, sem bordas pesadas, discreto mas visível
+- Texto pequeno e muted, discreto mas visível, logo abaixo do preço de venda
 
 ### `src/components/CarCard.tsx`
 - Substituir `<FipeBadge compact .../>` por `<FipeBadge card .../>` 

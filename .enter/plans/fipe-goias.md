@@ -33,18 +33,23 @@ Two features requested:
 
 ---
 
-## Feature 2 — FIPE Price Prominently on Cards
+## Feature 2 — Preço Popular nos Cards
+
+O "Preço Popular" já é calculado na página de detalhe (FipeBadge full mode) como a faixa FIPE ±12% — o preço que as pessoas normalmente praticam no mercado.
+
+### `src/components/FipeBadge.tsx` — novo modo `card`
+- Adicionar prop `card?: boolean` ao FipeBadge
+- No modo `card`, exibir a faixa "Preço Popular" (popLow a popHigh = FIPE ±12%) abaixo do preço de venda
+- Layout:
+  ```
+  Preço popular: R$ 35.000 – R$ 45.000
+  ```
+- Texto pequeno e muted, sem bordas pesadas, discreto mas visível
 
 ### `src/components/CarCard.tsx`
-- Move `<FipeBadge compact .../>` from the bottom of the card **to right below the selling price** (between price and specs row)
-- Remove the bottom border separator in compact mode since it's now mid-card
-
-### `src/components/FipeBadge.tsx` — compact mode update
-- When `compact`, instead of a full-width row at the bottom, render a compact inline row:
-  ```
-  TABELA FIPE  R$ XX.XXX    [badge: X% abaixo]
-  ```
-- Use smaller, muted text for the FIPE label, cleaner layout
+- Substituir `<FipeBadge compact .../>` por `<FipeBadge card .../>` 
+- Posicionar logo abaixo do preço de venda (antes dos specs)
+- Adicionar também um badge de comparação (acima/abaixo/na média) para indicar se o preço anunciado está dentro da faixa popular
 
 ---
 

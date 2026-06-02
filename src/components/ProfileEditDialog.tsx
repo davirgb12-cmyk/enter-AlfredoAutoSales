@@ -104,30 +104,26 @@ export default function ProfileEditDialog({ open, onOpenChange }: Props) {
         </DialogHeader>
 
         <div className="flex flex-col items-center gap-5 py-2">
-          {/* Avatar preview — label wraps so tap anywhere opens file picker on mobile */}
-          <div className="relative">
-            <label
-              htmlFor="avatar-file-input"
-              className="block w-24 h-24 rounded-full cursor-pointer group"
-              title="Alterar foto"
-            >
-              <div className="w-full h-full rounded-full bg-primary text-primary-foreground flex items-center justify-center text-3xl font-bold overflow-hidden ring-2 ring-border shadow-md">
-                {avatarSrc ? (
-                  <img src={avatarSrc} alt="Avatar" className="w-full h-full object-cover" />
-                ) : (
-                  userInitial
-                )}
-              </div>
-              <div className="absolute bottom-0 right-0 w-8 h-8 bg-gold text-gold-foreground rounded-full flex items-center justify-center group-hover:bg-gold/90 transition-colors shadow-sm pointer-events-none">
-                <Camera className="h-4 w-4" />
-              </div>
-            </label>
+          {/* Avatar — input transparent overlay, works on iOS/Android */}
+          <div className="relative w-24 h-24">
+            <div className="w-24 h-24 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-3xl font-bold overflow-hidden ring-2 ring-border shadow-md">
+              {avatarSrc ? (
+                <img src={avatarSrc} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                userInitial
+              )}
+            </div>
+            {/* Camera badge */}
+            <div className="absolute bottom-0 right-0 w-8 h-8 bg-gold text-gold-foreground rounded-full flex items-center justify-center shadow-sm pointer-events-none z-10">
+              <Camera className="h-4 w-4" />
+            </div>
+            {/* Transparent overlay input — most reliable on mobile */}
             <input
-              id="avatar-file-input"
               type="file"
               accept="image/*"
-              className="sr-only"
               onChange={handleFileSelect}
+              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full rounded-full"
+              style={{ fontSize: 0 }}
             />
           </div>
 

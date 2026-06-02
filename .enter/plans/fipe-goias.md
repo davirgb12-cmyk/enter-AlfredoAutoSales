@@ -13,22 +13,23 @@ Two features requested:
 - Create Supabase Storage bucket `avatars` (public)
 - Add RLS policy: authenticated users can insert/update `avatars/{user.id}/*`
 
-### New Component: `AvatarUploadDialog.tsx`
-- A `Dialog` (shadcn) triggered by a menu item in the Navbar dropdown
+### New Component: `ProfileEditDialog.tsx`
+- A `Dialog` (shadcn) triggered by a menu item in the Navbar dropdown ("Editar Perfil")
 - Contains:
   - Current avatar preview (circle with photo or initial)
-  - File input button (accepts `image/*`, max 2 MB)
+  - File input button to upload photo (accepts `image/*`, max 2 MB)
+  - Text input for **Nome de exibição** (`display_name`)
+  - Save button
   - Upload flow: `supabase.storage.from('avatars').upload(path, file, { upsert: true })`
-  - After upload → call `supabase.auth.updateUser({ data: { avatar_url: publicUrl } })`
-  - Show loading state during upload
+  - After upload → call `supabase.auth.updateUser({ data: { avatar_url: publicUrl, display_name: name } })`
+  - Show loading state during save
   - Show success/error toast
 
 ### Navbar changes (`src/components/Navbar.tsx`)
-- Read `user?.user_metadata?.avatar_url` for the avatar
-- If it exists → show `<img>` in the avatar circle (both in button trigger and dropdown label)
-- If not → fallback to the current letter initial
-- Add "Alterar foto de perfil" `DropdownMenuItem` that opens the `AvatarUploadDialog`
-- Import `Camera` icon from lucide-react for the menu item
+- Read `user?.user_metadata?.avatar_url` and `user?.user_metadata?.display_name` for the avatar/name
+- If avatar exists → show `<img>` in the avatar circle; otherwise fallback to letter initial
+- Show `display_name` (or email) in the dropdown label
+- Add "Editar Perfil" `DropdownMenuItem` (Camera + User icons) that opens `ProfileEditDialog`
 
 ---
 
@@ -53,7 +54,7 @@ Two features requested:
 - `src/components/FipeBadge.tsx` — update compact mode styling
 
 ## Files to Create
-- `src/components/AvatarUploadDialog.tsx` — upload dialog component
+- `src/components/ProfileEditDialog.tsx` — combined photo + name edit dialog
 
 ## Migration Required
 - Create `avatars` storage bucket + RLS policies

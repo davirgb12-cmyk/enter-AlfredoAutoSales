@@ -1,76 +1,112 @@
-# Plan: Profile Picture + FIPE Price on Cards
+# Plan: Car Characteristics + Mobile Profile Fix
 
 ## Context
-Two features requested:
-1. **Foto de perfil** — the navbar avatar is currently just a letter initial. The user wants to upload a real photo via the dropdown menu.
-2. **Preço FIPE nos cards** — the `FipeBadge compact` already exists at the bottom of each `CarCard` but is small and hidden. Move it directly below the selling price to make it prominent.
+Three requests:
+1. Add "passagem por leilão" and "sinistro" flags when creating/editing an ad
+2. Add full car characteristics to the ad form (like OLX): vehicle type, engine power, doors, steering, optionals
+3. Fix profile picture change not working on mobile (iOS Safari blocks programmatic click on `display: none` inputs)
 
 ---
 
-## Feature 1 — Profile Picture
+## 1 — Mobile Profile Picture Fix (`ProfileEditDialog.tsx`)
 
-### Storage Setup (Migration)
-- Create Supabase Storage bucket `avatars` (public)
-- Add RLS policy: authenticated users can insert/update `avatars/{user.id}/*`
+**Root cause:** `fileInputRef.current?.click()` on a `className="hidden"` input (display:none) is blocked by iOS Safari.
 
-### New Component: `ProfileEditDialog.tsx`
-- A `Dialog` (shadcn) triggered by a menu item in the Navbar dropdown ("Editar Perfil")
-- Contains:
-  - Current avatar preview (circle with photo or initial)
-  - File input button to upload photo (accepts `image/*`, max 2 MB)
-  - Text input for **Nome de exibição** (`display_name`)
-  - Save button
-  - Upload flow: `supabase.storage.from('avatars').upload(path, file, { upsert: true })`
-  - After upload → call `supabase.auth.updateUser({ data: { avatar_url: publicUrl, display_name: name } })`
-  - Show loading state during save
-  - Show success/error toast
+**Fix:** Replace the button+ref approach with a `<label htmlFor="avatar-file-input">` wrapping both the avatar circle and the camera button. Use `className="sr-only"` on the input (visually hidden but accessible + clickable via label on all mobile browsers).
 
-### Navbar changes (`src/components/Navbar.tsx`)
-- Read `user?.user_metadata?.avatar_url` and `user?.user_metadata?.display_name` for the avatar/name
-- If avatar exists → show `<img>` in the avatar circle; otherwise fallback to letter initial
-- Show `display_name` (or email) in the dropdown label
-- Add "Editar Perfil" `DropdownMenuItem` (Camera + User icons) that opens `ProfileEditDialog`
+```tsx
+<label htmlFor="avatar-file-input" className="relative cursor-pointer">
+  {/* avatar circle */}
+  {/* camera button overlay */}
+</label>
+<input id="avatar-file-input" type="file" accept="image/*" className="sr-only" onChange={handleFileSelect} />
+```
 
 ---
 
-## Feature 2 — Preço Popular nos Cards
+## 2 — New DB Columns (Migration)
 
-O "Preço Popular" já é calculado na página de detalhe, mas usando FIPE ±12%. O usuário confirmou que na prática os carros são vendidos **abaixo** da FIPE.
+Add to `cars` table:
+```sql
+ALTER TABLE cars
+  ADD COLUMN vehicle_type    text    NOT NULL DEFAULT '',
+  ADD COLUMN engine_power    text    NOT NULL DEFAULT '',
+  ADD COLUMN doors           integer NOT NULL DEFAULT 0,
+  ADD COLUMN steering        text    NOT NULL DEFAULT '',
+  ADD COLUMN optionals       text[]  NOT NULL DEFAULT ARRAY[]::text[],
+  ADD COLUMN auction_history boolean NOT NULL DEFAULT false,
+  ADD COLUMN sinistro        boolean NOT NULL DEFAULT false;
+```
 
-**Novo cálculo:** faixa de 80% a 95% da FIPE (5% a 20% abaixo), que representa o preço que as pessoas normalmente praticam no mercado.
+---
 
-### `src/components/FipeBadge.tsx` — ajustes
-- Alterar `popLow = fipe.priceValue * 0.80` e `popHigh = fipe.priceValue * 0.95`
-- Adicionar prop `card?: boolean`
-- No modo `card`, exibir somente a faixa "Preço Popular":
-  ```
-  Preço popular: R$ 35.000 – R$ 42.000
-  ```
-- Texto pequeno e muted, discreto mas visível, logo abaixo do preço de venda
+## 3 — `src/lib/types.ts` Updates
 
-### `src/components/CarCard.tsx`
-- Substituir `<FipeBadge compact .../>` por `<FipeBadge card .../>` 
-- Posicionar logo abaixo do preço de venda (antes dos specs)
-- Adicionar também um badge de comparação (acima/abaixo/na média) para indicar se o preço anunciado está dentro da faixa popular
+Add optional new fields to `Car` interface + new constants:
+```typescript
+VEHICLE_TYPES: ['Hatchback', 'Sedan', 'SUV', 'Picape', 'Utilitário/Van', 'Esportivo', 'Conversível', 'Minivan']
+ENGINE_POWER_OPTIONS: ['1.0', '1.0 Turbo', '1.3', '1.4', '1.5', '1.6', '1.8', '2.0', '2.4', '3.0', 'Outro']
+STEERING_OPTIONS: ['Mecânica', 'Hidráulica', 'Elétrica', 'Eletro-hidráulica']
+OPTIONALS_LIST: Ar-condicionado, Vidros elétricos, Trava elétrica, Sensor de estacionamento, Câmera de ré, Rodas de liga leve, Banco de couro, Multimídia/Tela, Bluetooth, GPS, Alarme, Air bag, Freio ABS, Teto solar, Piloto automático, etc.
+```
+
+---
+
+## 4 — `src/pages/AdminCarForm.tsx` Updates
+
+Add a **new card section "Características do Veículo"** between "Informações do Veículo" and "Contato":
+
+### Row 1: Tipo de Veículo + Potência do Motor + Portas
+- Select for vehicle_type (Hatchback, Sedan, SUV, etc.)
+- Select for engine_power (1.0, 1.4, 2.0, etc.)  
+- Select for doors (2 portas / 4 portas)
+
+### Row 2: Direção
+- Select for steering (Mecânica, Hidráulica, Elétrica, Eletro-hidráulica)
+
+### Histórico do Veículo (red warning section)
+- Checkbox toggle for `auction_history` — "Passagem por leilão"
+- Checkbox toggle for `sinistro` — "Veículo com histórico de sinistro"
+- Note: shown in orange/red warning style since it affects value
+
+### Opcionais (multi-select grid of checkboxes)
+- 4-column grid of Checkbox + Label for each optional
+- Toggles item in/out of `optionals` array
+
+Also update `defaultForm()` and `useEffect` for editing to include new fields.
+Also update `handleSubmit` payload to include new fields.
+
+---
+
+## 5 — `src/pages/CarDetail.tsx` Updates
+
+Expand the specs grid with new fields (only show if value is set):
+- Vehicle type (Tipo)
+- Engine power (Motor)
+- Doors (Portas)
+- Steering (Direção)
+
+Add **"Histórico"** warning badges (only if true):
+- Orange badge: "Passagem por leilão" with Gavel icon
+- Red badge: "Histórico de sinistro" with AlertTriangle icon
+
+Add **"Opcionais"** section below specs (only if array has items):
+- Tag-style list of optionals with Check icon
 
 ---
 
 ## Files to Modify
-- `src/components/Navbar.tsx` — avatar display + new menu item
-- `src/components/CarCard.tsx` — move FipeBadge position
-- `src/components/FipeBadge.tsx` — update compact mode styling
-
-## Files to Create
-- `src/components/ProfileEditDialog.tsx` — combined photo + name edit dialog
+- `src/components/ProfileEditDialog.tsx`
+- `src/lib/types.ts`
+- `src/pages/AdminCarForm.tsx`
+- `src/pages/CarDetail.tsx`
 
 ## Migration Required
-- Create `avatars` storage bucket + RLS policies
-
----
+- Add 7 new columns to `cars` table
 
 ## Verification
-1. Login → open navbar dropdown → "Alterar foto de perfil" appears
-2. Upload an image → avatar updates in navbar immediately
-3. Reload page → avatar persists (stored in user metadata)
-4. On home page listing → each card shows FIPE price clearly below the selling price
-5. Compact FIPE badge shows the comparison badge correctly
+1. Mobile: open profile dialog → tap camera button → photo picker opens on iOS/Android
+2. Form: new section "Características" appears with all fields
+3. Form: "Passagem por leilão" and "Sinistro" checkboxes in "Histórico" section
+4. Form: optionals multi-select checkboxes grid
+5. Detail page: new specs visible + optional badges for leilão/sinistro + optionals list

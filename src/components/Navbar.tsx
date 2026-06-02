@@ -17,7 +17,6 @@ import {
   LogOut,
   LayoutDashboard,
   PlusCircle,
-  Zap,
   ChevronDown,
   MapPin,
   Menu,
@@ -73,8 +72,17 @@ export default function Navbar() {
             onClick={() => setMobileOpen(false)}
             className="flex items-center gap-2.5 shrink-0 group"
           >
-            <div className="w-9 h-9 bg-gold rounded-xl flex items-center justify-center shadow-md group-hover:shadow-gold/40 transition-shadow">
-              <Zap className="h-5 w-5 text-gold-foreground" strokeWidth={2.5} />
+            <div className="w-9 h-9 rounded-xl overflow-hidden shadow-md group-hover:shadow-gold/40 transition-shadow">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" className="w-full h-full">
+                <rect width="200" height="200" fill="#002d54"/>
+                <circle cx="100" cy="100" r="90" fill="none" stroke="#003d70" strokeWidth="4" strokeDasharray="8 4"/>
+                <g transform="translate(20, 65) scale(0.65)">
+                  <path d="M10,10 L40,50 L10,90 L25,90 L55,50 L25,10 Z" fill="#E1A624"/>
+                  <path d="M35,10 L65,50 L35,90 L50,90 L80,50 L50,10 Z" fill="#1d4461"/>
+                </g>
+                <text x="80" y="105" fontFamily="'Montserrat', sans-serif" fontWeight="800" fontSize="25" fill="#E1A624">Leve</text>
+                <text x="80" y="130" fontFamily="'Montserrat', sans-serif" fontWeight="800" fontSize="25" fill="#FFFFFF">Motors</text>
+              </svg>
             </div>
             <div className="flex items-baseline gap-2">
               <span className="font-bold text-[1.15rem] text-primary-foreground tracking-tight">

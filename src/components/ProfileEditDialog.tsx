@@ -21,8 +21,6 @@ interface Props {
 export default function ProfileEditDialog({ open, onOpenChange }: Props) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const currentAvatar = user?.user_metadata?.avatar_url as string | undefined;
   const currentName   = user?.user_metadata?.display_name as string | undefined;
 

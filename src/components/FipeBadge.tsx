@@ -68,9 +68,9 @@ export default function FipeBadge({
 
   const cmp = fipeComparison(sellingPrice, fipe.priceValue);
 
-  // "preço popular" — typical market range: FIPE ±12%
-  const popLow  = fipe.priceValue * 0.88;
-  const popHigh = fipe.priceValue * 1.12;
+  // "preço popular" — typical market range: 5–20% below FIPE
+  const popLow  = fipe.priceValue * 0.80;
+  const popHigh = fipe.priceValue * 0.95;
 
   return (
     <div className="rounded-lg bg-card border border-border overflow-hidden">
@@ -116,7 +116,7 @@ export default function FipeBadge({
                   </span>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-[200px] text-xs">
-                  Faixa de preço mais praticada no mercado para esse modelo.
+                  Faixa onde a maioria das pessoas realmente vende esse modelo (5–20% abaixo da FIPE).
                 </TooltipContent>
               </Tooltip>
             </div>

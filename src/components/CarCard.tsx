@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Car, formatCurrency, formatKm } from '@/lib/types';
-import { Gauge, Calendar, Fuel, MapPin } from 'lucide-react';
-import FipeBadge from '@/components/FipeBadge';
+import { Gauge, Calendar, Fuel, MapPin, TrendingDown, TrendingUp, Minus, Loader2 } from 'lucide-react';
+import { usePopularPrice, popularPriceLabel } from '@/hooks/usePopularPrice';
 
 interface CarCardProps {
   car: Car;
@@ -9,6 +9,18 @@ interface CarCardProps {
 
 export default function CarCard({ car }: CarCardProps) {
   const mainImage = car.images?.[0];
+
+  const { data: popularPrice, isLoading: ppLoading } = usePopularPrice(
+    car.brand,
+    car.model,
+    car.year,
+    car.km,
+    car.fuel,
+  );
+
+  const ppLabel = popularPrice
+    ? popularPriceLabel(car.selling_price, popularPrice.popular_min, popularPrice.popular_max)
+    : null;
 
   return (
     <Link to={`/carro/${car.id}`} className="group block">
@@ -68,12 +80,30 @@ export default function CarCard({ car }: CarCardProps) {
           </h3>
 
           {/* Price */}
-          <p className="text-[1.5rem] font-bold text-primary leading-none mb-3 tracking-tight">
+          <p className="text-[1.5rem] font-bold text-primary leading-none mb-2 tracking-tight">
             {formatCurrency(car.selling_price)}
           </p>
 
+          {/* Popular price row */}
+          <div className="flex items-center justify-between gap-2 mb-3 min-h-[22px]">
+            {ppLoading ? (
+              <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                <Loader2 className="h-2.5 w-2.5 animate-spin" />
+                Consultando preço popular...
+              </span>
+            ) : popularPrice ? (
+              <>
+                <span className="text-[11px] text-muted-foreground">
+                  <span className="font-medium text-foreground/70">Popular</span>
+                  {' '}{formatCurrency(popularPrice.popular_min)} – {formatCurrency(popularPrice.popular_max)}
+                </span>
+                {ppLabel && <PopularBadge color={ppLabel.color} text={ppLabel.text} />}
+              </>
+            ) : null}
+          </div>
+
           {/* Specs row */}
-          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3 flex-wrap">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap border-t border-border pt-3">
             <span className="flex items-center gap-1">
               <Calendar className="h-3 w-3" />{car.year}
             </span>
@@ -86,17 +116,30 @@ export default function CarCard({ car }: CarCardProps) {
               <Fuel className="h-3 w-3" />{car.fuel}
             </span>
           </div>
-
-          {/* FIPE compact */}
-          <FipeBadge
-            compact
-            brand={car.brand}
-            model={car.model}
-            year={car.year}
-            sellingPrice={car.selling_price}
-          />
         </div>
       </article>
     </Link>
+  );
+}
+
+function PopularBadge({ color, text }: { color: 'success' | 'destructive' | 'muted'; text: string }) {
+  if (color === 'success') {
+    return (
+      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-success/15 text-success shrink-0">
+        <TrendingDown className="h-2.5 w-2.5" />{text}
+      </span>
+    );
+  }
+  if (color === 'destructive') {
+    return (
+      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-destructive/10 text-destructive shrink-0">
+        <TrendingUp className="h-2.5 w-2.5" />{text}
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-muted text-muted-foreground shrink-0">
+      <Minus className="h-2.5 w-2.5" />{text}
+    </span>
   );
 }

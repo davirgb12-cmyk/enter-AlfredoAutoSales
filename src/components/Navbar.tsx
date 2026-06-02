@@ -22,14 +22,20 @@ import {
   Menu,
   X,
   MessageSquare,
+  UserRound,
 } from 'lucide-react';
 import { APP_NAME } from '@/lib/types';
+import ProfileEditDialog from '@/components/ProfileEditDialog';
 
 export default function Navbar() {
   const { isAdmin, user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+
+  const avatarUrl    = user?.user_metadata?.avatar_url as string | undefined;
+  const displayName  = user?.user_metadata?.display_name as string | undefined;
 
   const { data: msgCount = 0 } = useQuery({
     queryKey: ['msg-count-navbar', user?.id],
@@ -58,10 +64,24 @@ export default function Navbar() {
     navigate('/');
   };
 
-  const userInitial = user?.email?.charAt(0).toUpperCase() ?? '?';
+  const userInitial  = (displayName?.charAt(0) ?? user?.email?.charAt(0) ?? '?').toUpperCase();
+  const userName     = displayName || user?.email || '';
   const at = (path: string) => location.pathname === path;
 
+  /** Reusable avatar circle */
+  function AvatarCircle({ size = 'sm' }: { size?: 'sm' | 'md' }) {
+    const dim = size === 'md' ? 'w-10 h-10 text-sm' : 'w-7 h-7 text-xs';
+    return (
+      <div className={`${dim} rounded-full bg-gold text-gold-foreground flex items-center justify-center font-bold shadow-sm overflow-hidden shrink-0`}>
+        {avatarUrl
+          ? <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+          : userInitial}
+      </div>
+    );
+  }
+
   return (
+    <>
     <header className="sticky top-0 z-50">
       <nav className="navbar-bg">
         <div className="container mx-auto px-4 md:px-6 h-16 flex items-center gap-6">
@@ -128,20 +148,16 @@ export default function Navbar() {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="flex items-center gap-2 px-2.5 h-9 rounded-lg hover:bg-white/8 transition-colors group outline-none">
-                      <div className="w-7 h-7 rounded-full bg-gold text-gold-foreground flex items-center justify-center text-xs font-bold shadow-sm">
-                        {userInitial}
-                      </div>
+                      <AvatarCircle />
                       <ChevronDown className="h-3.5 w-3.5 text-primary-foreground/50 group-hover:text-primary-foreground/80 transition-colors" />
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56 mt-2 p-1.5">
                     <DropdownMenuLabel className="px-2 py-2 mb-1">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold shrink-0">
-                          {userInitial}
-                        </div>
+                        <AvatarCircle size="md" />
                         <div className="min-w-0">
-                          <p className="text-xs font-semibold text-foreground">Minha conta</p>
+                          <p className="text-xs font-semibold text-foreground truncate">{userName || 'Minha conta'}</p>
                           <p className="text-[11px] text-muted-foreground truncate">{user?.email}</p>
                         </div>
                       </div>
@@ -163,6 +179,13 @@ export default function Navbar() {
                         <PlusCircle className="h-4 w-4 text-muted-foreground" />
                         Novo Anúncio
                       </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setProfileOpen(true)}
+                      className="cursor-pointer gap-2.5 py-2"
+                    >
+                      <UserRound className="h-4 w-4 text-muted-foreground" />
+                      Editar Perfil
                     </DropdownMenuItem>
                     <DropdownMenuSeparator className="my-1" />
                     <DropdownMenuItem
@@ -271,10 +294,8 @@ export default function Navbar() {
                     </MobileItem>
 
                     <div className="flex items-center gap-2.5 px-3 py-2.5 mt-1 rounded-xl bg-white/5">
-                      <div className="w-7 h-7 rounded-full bg-gold text-gold-foreground flex items-center justify-center text-xs font-bold shrink-0">
-                        {userInitial}
-                      </div>
-                      <span className="text-sm text-primary-foreground/70 truncate flex-1">{user?.email}</span>
+                      <AvatarCircle />
+                      <span className="text-sm text-primary-foreground/70 truncate flex-1">{userName || user?.email}</span>
                       <button
                         onClick={handleSignOut}
                         className="text-primary-foreground/40 hover:text-destructive transition-colors"
@@ -305,6 +326,9 @@ export default function Navbar() {
         )}
       </nav>
     </header>
+
+    <ProfileEditDialog open={profileOpen} onOpenChange={setProfileOpen} />
+  </>
   );
 }
 

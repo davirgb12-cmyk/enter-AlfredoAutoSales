@@ -26,6 +26,13 @@ import {
   User,
   MessageSquare,
   CheckCircle2,
+  AlertTriangle,
+  Gavel,
+  Check,
+  Car as CarIcon,
+  Zap,
+  DoorOpen,
+  RotateCcw,
 } from 'lucide-react';
 
 export default function CarDetail() {
@@ -82,11 +89,15 @@ export default function CarDetail() {
   const canEdit = isOwner || (isAdmin && !car.user_id);
 
   const specs = [
-    { icon: Calendar, label: 'Ano', value: String(car.year) },
-    { icon: Gauge, label: 'Quilometragem', value: formatKm(car.km) },
-    { icon: Fuel, label: 'Combustível', value: car.fuel },
-    { icon: Settings2, label: 'Câmbio', value: car.transmission },
-    { icon: Palette, label: 'Cor', value: car.color },
+    { icon: Calendar,  label: 'Ano',         value: String(car.year) },
+    { icon: Gauge,     label: 'Quilometragem', value: formatKm(car.km) },
+    { icon: Fuel,      label: 'Combustível',  value: car.fuel },
+    { icon: Settings2, label: 'Câmbio',       value: car.transmission },
+    { icon: Palette,   label: 'Cor',          value: car.color },
+    ...(car.vehicle_type ? [{ icon: CarIcon,  label: 'Tipo', value: car.vehicle_type }] : []),
+    ...(car.engine_power ? [{ icon: Zap,      label: 'Motor', value: car.engine_power }] : []),
+    ...(car.doors       ? [{ icon: DoorOpen,  label: 'Portas', value: `${car.doors} portas` }] : []),
+    ...(car.steering    ? [{ icon: RotateCcw,  label: 'Direção', value: car.steering }] : []),
   ];
 
   return (
@@ -247,6 +258,44 @@ export default function CarDetail() {
                 </div>
               ))}
             </div>
+
+            {/* Vehicle history warnings */}
+            {(car.auction_history || car.sinistro) && (
+              <div className="space-y-2">
+                {car.auction_history && (
+                  <div className="flex items-center gap-2.5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-700 dark:text-amber-400">
+                    <Gavel className="h-4 w-4 shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium">Passagem por leilão</p>
+                      <p className="text-xs opacity-80">Este veículo foi vendido em leilão anteriormente.</p>
+                    </div>
+                  </div>
+                )}
+                {car.sinistro && (
+                  <div className="flex items-center gap-2.5 p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive">
+                    <AlertTriangle className="h-4 w-4 shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium">Histórico de sinistro</p>
+                      <p className="text-xs opacity-80">Este veículo possui histórico de sinistro registrado.</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Optionals */}
+            {car.optionals && car.optionals.length > 0 && (
+              <div className="p-4 rounded-xl bg-card border border-border">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide font-semibold mb-3">Opcionais</p>
+                <div className="flex flex-wrap gap-2">
+                  {car.optionals.map((opt) => (
+                    <span key={opt} className="inline-flex items-center gap-1 text-xs bg-primary/8 text-primary px-2.5 py-1 rounded-full font-medium">
+                      <Check className="h-2.5 w-2.5" />{opt}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Seller card */}
             <div className="p-4 rounded-xl bg-card border border-border">

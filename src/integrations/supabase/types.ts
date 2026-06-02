@@ -3111,72 +3111,93 @@ export type Database = {
     Tables: {
       cars: {
         Row: {
+          auction_history: boolean
           brand: string
           color: string
           cost_price: number
           created_at: string
           description: string | null
+          doors: number
+          engine_power: string
           fuel: string
           id: string
           images: string[] | null
           km: number
           model: string
+          optionals: string[]
           seller_city: string
           seller_name: string
           seller_phone: string
           seller_state: string
           selling_price: number
+          sinistro: boolean
           status: string
+          steering: string
           title: string
           transmission: string
           updated_at: string
           user_id: string | null
+          vehicle_type: string
           year: number
         }
         Insert: {
+          auction_history?: boolean
           brand: string
           color?: string
           cost_price?: number
           created_at?: string
           description?: string | null
+          doors?: number
+          engine_power?: string
           fuel?: string
           id?: string
           images?: string[] | null
           km?: number
           model: string
+          optionals?: string[]
           seller_city?: string
           seller_name?: string
           seller_phone?: string
           seller_state?: string
           selling_price?: number
+          sinistro?: boolean
           status?: string
+          steering?: string
           title: string
           transmission?: string
           updated_at?: string
           user_id?: string | null
+          vehicle_type?: string
           year: number
         }
         Update: {
+          auction_history?: boolean
           brand?: string
           color?: string
           cost_price?: number
           created_at?: string
           description?: string | null
+          doors?: number
+          engine_power?: string
           fuel?: string
           id?: string
           images?: string[] | null
           km?: number
           model?: string
+          optionals?: string[]
           seller_city?: string
           seller_name?: string
           seller_phone?: string
           seller_state?: string
           selling_price?: number
+          sinistro?: boolean
           status?: string
+          steering?: string
           title?: string
           transmission?: string
           updated_at?: string
           user_id?: string | null
+          vehicle_type?: string
           year?: number
         }
         Relationships: []

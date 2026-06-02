@@ -9,6 +9,10 @@ import {
   FUEL_OPTIONS,
   TRANSMISSION_OPTIONS,
   COLOR_OPTIONS,
+  VEHICLE_TYPES,
+  ENGINE_POWER_OPTIONS,
+  STEERING_OPTIONS,
+  OPTIONALS_LIST,
   APP_STATE,
   APP_STATE_LABEL,
   formatCurrency,
@@ -28,7 +32,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Save, TrendingUp, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Save, TrendingUp, Loader2, AlertCircle, AlertTriangle, Gavel } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 
 const defaultForm = (): CarFormData => {
@@ -51,6 +56,13 @@ const defaultForm = (): CarFormData => {
     seller_phone: profile.seller_phone,
     seller_city: profile.seller_city,
     seller_state: profile.seller_state || 'GO',
+    vehicle_type: '',
+    engine_power: '',
+    doors: 0,
+    steering: '',
+    optionals: [],
+    auction_history: false,
+    sinistro: false,
   };
 };
 
@@ -83,10 +95,21 @@ export default function AdminCarForm() {
     if (existingCar) {
       const { selling_price, cost_price, images, status, title, brand, model,
         year, km, color, fuel, transmission, description,
-        seller_name, seller_phone, seller_city, seller_state } = existingCar;
-      setForm({ selling_price, cost_price, images, status, title, brand, model,
+        seller_name, seller_phone, seller_city, seller_state,
+        vehicle_type, engine_power, doors, steering, optionals,
+        auction_history, sinistro } = existingCar;
+      setForm({
+        selling_price, cost_price, images, status, title, brand, model,
         year, km, color, fuel, transmission, description,
-        seller_name, seller_phone, seller_city, seller_state });
+        seller_name, seller_phone, seller_city, seller_state,
+        vehicle_type: vehicle_type ?? '',
+        engine_power: engine_power ?? '',
+        doors: doors ?? 0,
+        steering: steering ?? '',
+        optionals: optionals ?? [],
+        auction_history: auction_history ?? false,
+        sinistro: sinistro ?? false,
+      });
     }
   }, [existingCar]);
 
@@ -103,6 +126,15 @@ export default function AdminCarForm() {
   const setField = <K extends keyof CarFormData>(key: K, value: CarFormData[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
+  };
+
+  const toggleOptional = (opt: string) => {
+    setForm((prev) => ({
+      ...prev,
+      optionals: prev.optionals?.includes(opt)
+        ? prev.optionals.filter((o) => o !== opt)
+        : [...(prev.optionals ?? []), opt],
+    }));
   };
 
   const validate = (): boolean => {
@@ -303,6 +335,111 @@ export default function AdminCarForm() {
                 className="resize-none"
               />
             </Field>
+          </div>
+
+          {/* Characteristics */}
+          <div className="bg-card rounded-xl border border-border p-5 shadow-card space-y-5">
+            <h2 className="font-semibold text-card-foreground">Características do Veículo</h2>
+
+            <div className="grid sm:grid-cols-3 gap-4">
+              <Field label="Tipo de Veículo">
+                <Select value={form.vehicle_type || ''} onValueChange={(v) => setField('vehicle_type', v)}>
+                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectContent>
+                    {VEHICLE_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field label="Potência do Motor">
+                <Select value={form.engine_power || ''} onValueChange={(v) => setField('engine_power', v)}>
+                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectContent>
+                    {ENGINE_POWER_OPTIONS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field label="Portas">
+                <Select value={form.doors ? String(form.doors) : ''} onValueChange={(v) => setField('doors', Number(v))}>
+                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="2">2 portas</SelectItem>
+                    <SelectItem value="4">4 portas</SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
+            </div>
+
+            <Field label="Direção">
+              <Select value={form.steering || ''} onValueChange={(v) => setField('steering', v)}>
+                <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                <SelectContent>
+                  {STEERING_OPTIONS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </Field>
+
+            {/* Optionals */}
+            <div className="space-y-3">
+              <Label>Opcionais</Label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2.5">
+                {OPTIONALS_LIST.map((opt) => (
+                  <label key={opt} className="flex items-center gap-2 cursor-pointer group">
+                    <Checkbox
+                      checked={form.optionals?.includes(opt) ?? false}
+                      onCheckedChange={() => toggleOptional(opt)}
+                      id={`opt-${opt}`}
+                    />
+                    <span className="text-sm text-foreground/80 group-hover:text-foreground transition-colors select-none">
+                      {opt}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Vehicle History */}
+          <div className="bg-card rounded-xl border border-border p-5 shadow-card space-y-3">
+            <h2 className="font-semibold text-card-foreground">Histórico do Veículo</h2>
+            <p className="text-xs text-muted-foreground -mt-1">
+              Informe honestamente — isso ajuda compradores e protege você de disputas futuras.
+            </p>
+            <div className="space-y-3">
+              <label className="flex items-start gap-3 p-3 rounded-lg border border-border hover:bg-muted/40 cursor-pointer transition-colors group">
+                <Checkbox
+                  id="auction"
+                  checked={form.auction_history ?? false}
+                  onCheckedChange={(v) => setField('auction_history', !!v)}
+                  className="mt-0.5"
+                />
+                <div>
+                  <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                    <Gavel className="h-3.5 w-3.5 text-amber-500" />
+                    Passagem por leilão
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    O veículo foi vendido em leilão em algum momento.
+                  </p>
+                </div>
+              </label>
+              <label className="flex items-start gap-3 p-3 rounded-lg border border-border hover:bg-muted/40 cursor-pointer transition-colors">
+                <Checkbox
+                  id="sinistro"
+                  checked={form.sinistro ?? false}
+                  onCheckedChange={(v) => setField('sinistro', !!v)}
+                  className="mt-0.5"
+                />
+                <div>
+                  <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                    <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
+                    Histórico de sinistro
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    O veículo sofreu colisão, alagamento ou outro sinistro registrado.
+                  </p>
+                </div>
+              </label>
+            </div>
           </div>
 
           {/* Seller Contact */}

@@ -20,6 +20,14 @@ export interface Car {
   user_id?: string | null;
   created_at: string;
   updated_at: string;
+  // Extended characteristics
+  vehicle_type?: string;
+  engine_power?: string;
+  doors?: number;
+  steering?: string;
+  optionals?: string[];
+  auction_history?: boolean;
+  sinistro?: boolean;
 }
 
 export type CarFormData = Omit<Car, 'id' | 'created_at' | 'updated_at' | 'user_id'>;
@@ -29,6 +37,23 @@ export const TRANSMISSION_OPTIONS = ['Manual', 'Automático', 'CVT'];
 export const COLOR_OPTIONS = [
   'Branco', 'Preto', 'Prata', 'Cinza', 'Vermelho', 'Azul',
   'Verde', 'Amarelo', 'Laranja', 'Marrom', 'Bege', 'Outro',
+];
+export const VEHICLE_TYPES = [
+  'Hatchback', 'Sedan', 'SUV', 'Picape', 'Utilitário/Van',
+  'Esportivo', 'Conversível', 'Minivan', 'Outro',
+];
+export const ENGINE_POWER_OPTIONS = [
+  '1.0', '1.0 Turbo', '1.3', '1.4', '1.5', '1.6', '1.8',
+  '2.0', '2.4', '3.0', 'Outro',
+];
+export const STEERING_OPTIONS = ['Mecânica', 'Hidráulica', 'Elétrica', 'Eletro-hidráulica'];
+export const OPTIONALS_LIST = [
+  'Ar-condicionado', 'Vidros elétricos', 'Trava elétrica', 'Direção hidráulica',
+  'Sensor de estacionamento', 'Câmera de ré', 'Rodas de liga leve',
+  'Banco de couro', 'Multimídia/Tela', 'Bluetooth', 'GPS',
+  'Alarme', 'Air bag', 'Freio ABS', 'Teto solar', 'Piloto automático',
+  'Farol de neblina', 'Controle de estabilidade', 'Computador de bordo',
+  'Retrovisor elétrico', 'Bancos aquecidos',
 ];
 export const STATES = [
   'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO',

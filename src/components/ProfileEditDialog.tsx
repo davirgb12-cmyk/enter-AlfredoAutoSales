@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -106,28 +106,29 @@ export default function ProfileEditDialog({ open, onOpenChange }: Props) {
         </DialogHeader>
 
         <div className="flex flex-col items-center gap-5 py-2">
-          {/* Avatar preview */}
+          {/* Avatar preview — label wraps so tap anywhere opens file picker on mobile */}
           <div className="relative">
-            <div className="w-24 h-24 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-3xl font-bold overflow-hidden ring-2 ring-border shadow-md">
-              {avatarSrc ? (
-                <img src={avatarSrc} alt="Avatar" className="w-full h-full object-cover" />
-              ) : (
-                userInitial
-              )}
-            </div>
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="absolute bottom-0 right-0 w-8 h-8 bg-gold text-gold-foreground rounded-full flex items-center justify-center hover:bg-gold/90 transition-colors shadow-sm"
+            <label
+              htmlFor="avatar-file-input"
+              className="block w-24 h-24 rounded-full cursor-pointer group"
               title="Alterar foto"
             >
-              <Camera className="h-4 w-4" />
-            </button>
+              <div className="w-full h-full rounded-full bg-primary text-primary-foreground flex items-center justify-center text-3xl font-bold overflow-hidden ring-2 ring-border shadow-md">
+                {avatarSrc ? (
+                  <img src={avatarSrc} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  userInitial
+                )}
+              </div>
+              <div className="absolute bottom-0 right-0 w-8 h-8 bg-gold text-gold-foreground rounded-full flex items-center justify-center group-hover:bg-gold/90 transition-colors shadow-sm pointer-events-none">
+                <Camera className="h-4 w-4" />
+              </div>
+            </label>
             <input
-              ref={fileInputRef}
+              id="avatar-file-input"
               type="file"
               accept="image/*"
-              className="hidden"
+              className="sr-only"
               onChange={handleFileSelect}
             />
           </div>

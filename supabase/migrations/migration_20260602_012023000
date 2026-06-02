@@ -1,0 +1,8 @@
+ALTER TABLE cars
+  ADD COLUMN IF NOT EXISTS vehicle_type    text    NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS engine_power    text    NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS doors           integer NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS steering        text    NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS optionals       text[]  NOT NULL DEFAULT ARRAY[]::text[],
+  ADD COLUMN IF NOT EXISTS auction_history boolean NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS sinistro        boolean NOT NULL DEFAULT false;

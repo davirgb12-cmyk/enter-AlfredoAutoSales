@@ -292,6 +292,13 @@ export default function Navbar() {
                       <PlusCircle className="h-4 w-4 text-gold" />
                       <span className="font-semibold">Novo Anúncio</span>
                     </MobileItem>
+                    <button
+                      onClick={() => { setMobileOpen(false); setProfileOpen(true); }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-primary-foreground/80 hover:bg-white/8 transition-colors text-sm"
+                    >
+                      <UserRound className="h-4 w-4 opacity-70" />
+                      Editar Perfil
+                    </button>
 
                     <div className="flex items-center gap-2.5 px-3 py-2.5 mt-1 rounded-xl bg-white/5">
                       <AvatarCircle />
